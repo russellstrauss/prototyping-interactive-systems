@@ -4,10 +4,8 @@ from LikertWizard import LikertWizard
 from tkinter import *
 import json
 from datetime import datetime
-import os
 from PIL import Image, ImageTk
-# print(os.getcwd())
-# print(os.listdir())
+from playsound import playsound
 
 root = Tk()
 root.minsize(425, 100)
@@ -194,10 +192,19 @@ def set_up_memorization(self, my_frame):
 	farnsworth_image_label = Label(my_frame, image=farnsworth_photo)
 	farnsworth_image_label.image = farnsworth_photo
 	
-	Button(my_frame, image=fry_photo).grid(row=0, column=1, padx=10, pady=10)
-	Button(my_frame, text='2', image=farnsworth_photo).grid(row=1, column=0, padx=10, pady=10)
-	Button(my_frame, text='3', image=bender_photo).grid(row=1, column=2, padx=10, pady=10)
-	Button(my_frame, text='4', image=zoidberg_photo).grid(row=2, column=1, padx=10, pady=10)
+	def playFry():
+		playsound('audio/fry.mp3')
+	def playBender():
+		playsound('audio/bender.mp3')
+	def playFarnsworth():
+		playsound('audio/farnsworth.mp3')
+	def playZoidberg():
+		playsound('audio/zoidberg.mp3')
+	
+	Button(my_frame, image=fry_photo, command=playFry).grid(row=0, column=1, padx=10, pady=10)
+	Button(my_frame, text='2', image=farnsworth_photo, command=playFarnsworth).grid(row=1, column=0, padx=10, pady=10)
+	Button(my_frame, text='3', image=bender_photo, command=playBender).grid(row=1, column=2, padx=10, pady=10)
+	Button(my_frame, text='4', image=zoidberg_photo, command=playZoidberg).grid(row=2, column=1, padx=10, pady=10)
 
 	return my_frame
 
@@ -219,11 +226,36 @@ class MemorizationStep(Step):
 	def updateValue(self, event):
 		self.data[self.stepname]["likert_score"] = event
 
+def set_up_tlx(self, my_frame):
+	return my_frame
+
+class TLXScaleStep(Step):
+	def __init__(self, parent, data, stepname, page_label):
+		super().__init__(parent, data, stepname)
+
+		self.page_label = page_label
+		lbl1 = Label(self, text=self.page_label)
+		lbl1.pack(side="top", fill="x")
+
+		my_frame = Frame(self)
+		my_frame = set_up_tlx(self, my_frame)
+		my_frame.pack(padx=10, pady=10)
+		
+		likertscale = Scale(self, from_=0, to=100, length=400, tickinterval=5, orient=HORIZONTAL, command=self.updateValue)
+		likertscale.set(0)
+		likertscale.pack()
+
+		self.data[self.stepname]["page_label"] = self.page_label
+		# self.data[self.stepname]["likert_score"] = likertscale.get()
+
+	def updateValue(self, event):
+		self.data[self.stepname]["likert_score"] = event
 
 class MyWizard(Wizard):
 	def __init__(self, parent, data):
 		super().__init__(parent, data)
 		steps = [
+					TLXScaleStep(self, self.data, "tlx", "TLX Analysis"),
 					MemorizationStep(self, self.data, "memorization", "Memorization Analysis"),
 					ParticipantInfo(self, self.data, "initialization", "Participant Info")
 				]
