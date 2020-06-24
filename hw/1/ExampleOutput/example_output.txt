@@ -1,0 +1,103 @@
+Enter file name for data (extensions will be added automatically): studydata2
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - p
+---------------------------------
+349,2,1,2018-09-07 10:34:57
+791,2,1,2018-09-07 10:36:32
+473,2,1,2018-09-07 10:37:33
+816,2,1,2018-09-07 10:38:13
+788,2,1,2018-09-07 10:38:19
+493,2,1,2018-09-07 10:39:23
+750,2,1,2018-09-07 10:39:52
+3,2,1,2018-09-07 10:40:04
+577,2,1,2018-09-07 10:40:50
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - g
+---------------------------------
+Session                  : 2
+Trial                    : 1
+Timestamp                : 2018-09-07 10:34:57
+Test String              : This is a test of the emergency broadcast network
+Num Participants         : 9
+Total Typing Sessions    : 35
+Average Time             : 6.121100437037036
+Average Accuracy         : 258.2962962962963
+Average Time Delta       : -0.4489914999999998
+Average Accuracy Delta   : 101.0
+Slowest Time             : 9.545438
+Fastest Time             : 0.724489
+Least Accurate           : 795.0
+Most Accurate            : 0.0
+Worst Time Delta         : 1.0290839999999992
+Best Time Delta          : -3.2292690000000004
+Worst Accuracy Delta     : -14.0
+Best Accuracy Delta      : 532.0
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - q
+Enter participant ID - test
+Participant not found
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - q
+Enter participant ID - 788,2,1,2018-09-07 10:38:19
+---------------------------------
+Participant Record: 788,2,1,2018-09-07 10:38:19
+Num Typing Sessions: 6
+Average time     : 8.334288833333334
+Max time         : 9.194711
+Min time         : 6.996005
+Average accuracy : 33.0
+Worst accuracy   : 78.0
+Best accuracy    : 0.0
+Time diff from first to last session: -0.8344939999999994
+Accuracy diff from first to last session: 61.0
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - q
+Enter participant ID - 349,2,1,2018-09-07 10:34:57
+---------------------------------
+Participant Record: 349,2,1,2018-09-07 10:34:57
+Num Typing Sessions: 10
+Average time     : 7.3092521
+Max time         : 8.967498
+Min time         : 6.106203
+Average accuracy : 2.0
+Worst accuracy   : 11.0
+Best accuracy    : 5.0
+Time diff from first to last session: 0.9144780000000008
+Accuracy diff from first to last session: -6.0
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - r
+Enter participant ID - 3,2,1,2018-09-07 10:40:04
+Participant 3,2,1,2018-09-07 10:40:04 deleted
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - p
+---------------------------------
+349,2,1,2018-09-07 10:34:57
+791,2,1,2018-09-07 10:36:32
+473,2,1,2018-09-07 10:37:33
+816,2,1,2018-09-07 10:38:13
+788,2,1,2018-09-07 10:38:19
+493,2,1,2018-09-07 10:39:23
+750,2,1,2018-09-07 10:39:52
+577,2,1,2018-09-07 10:40:50
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - g
+---------------------------------
+Session                  : 2
+Trial                    : 1
+Timestamp                : 2018-09-07 10:34:57
+Test String              : This is a test of the emergency broadcast network
+Num Participants         : 8
+Total Typing Sessions    : 31
+Average Time             : 5.763043585416666
+Average Accuracy         : 286.45833333333337
+Average Time Delta       : -0.338152
+Average Accuracy Delta   : 115.2
+Slowest Time             : 9.194711
+Fastest Time             : 0.724489
+Least Accurate           : 795.0
+Most Accurate            : 0.0
+Worst Time Delta         : 1.0290839999999992
+Best Time Delta          : -3.2292690000000004
+Worst Accuracy Delta     : -14.0
+Best Accuracy Delta      : 532.0
+---------------------------------
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - e
+Enter file name for export (csv xtensions will be added automatically): example2
+Options: (G)lobal stats, (Q)uery a participant, (R)emove participant, (E)xport data, (P)rint participant IDs, e(X)it - x

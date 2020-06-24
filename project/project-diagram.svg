@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 16.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="130.234px" height="760.785px" viewBox="0 0 130.234 760.785" enable-background="new 0 0 130.234 760.785"
+	 xml:space="preserve">
+<g>
+	<g>
+		<rect x="2.8" y="352.83" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="101.439"/>
+		<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="2.8" y1="373.891" x2="129.16" y2="373.891"/>
+	</g>
+	<rect x="5.729" y="358.27" fill="none" width="119.666" height="17.992"/>
+	<text transform="matrix(1 0 0 1 5.7285 366.79)" font-family="'MyriadPro-Regular'" font-size="12">GUI/User Input</text>
+	<rect x="6.984" y="378.027" fill="none" width="117.573" height="82.008"/>
+	<text transform="matrix(1 0 0 1 6.9844 384.418)"><tspan x="0" y="0" font-family="'MyriadPro-Regular'" font-size="9">• Curve radius</tspan><tspan x="0" y="10.799" font-family="'MyriadPro-Regular'" font-size="9">• Curve height</tspan><tspan x="0" y="21.6" font-family="'MyriadPro-Regular'" font-size="9">• Start/stop camera movement</tspan><tspan x="0" y="32.399" font-family="'MyriadPro-Regular'" font-size="9">• Show/hide trajectory</tspan><tspan x="0" y="43.199" font-family="'MyriadPro-Regular'" font-size="9">• Toggle curve formation view </tspan><tspan x="0" y="54" font-family="'MyriadPro-Regular'" font-size="9">vs. camera perspective </tspan><tspan x="0" y="64.799" font-family="'MyriadPro-Regular'" font-size="9">movement view</tspan></text>
+</g>
+<g>
+	<rect x="2.225" y="0.5" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="45.561"/>
+	<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="2.225" y1="21.56" x2="128.584" y2="21.56"/>
+	<rect x="5.153" y="5.939" fill="none" width="119.666" height="17.992"/>
+	<text transform="matrix(1 0 0 1 5.1533 14.4595)" font-family="'MyriadPro-Regular'" font-size="12">Code Repository</text>
+	<rect x="6.409" y="28.697" fill="none" width="117.573" height="14.436"/>
+	<text transform="matrix(1 0 0 1 6.4092 35.0869)" font-family="'MyriadPro-Regular'" font-size="9">• Stores application code</text>
+</g>
+<g>
+	<rect x="1.65" y="263.839" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="45.561"/>
+	<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="1.65" y1="284.899" x2="128.01" y2="284.899"/>
+	<rect x="4.579" y="269.278" fill="none" width="119.666" height="17.992"/>
+	<text transform="matrix(1 0 0 1 4.5786 277.7983)" font-family="'MyriadPro-Regular'" font-size="12">Application Runtime</text>
+	<rect x="5.834" y="292.036" fill="none" width="117.573" height="14.436"/>
+	<text transform="matrix(1 0 0 1 5.8345 298.4258)" font-family="'MyriadPro-Regular'" font-size="9">• User can run application</text>
+</g>
+<g>
+	<rect x="1.075" y="132.169" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="60.624"/>
+	<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="1.075" y1="153.23" x2="127.435" y2="153.23"/>
+	<rect x="4.003" y="137.609" fill="none" width="119.666" height="17.992"/>
+	<text transform="matrix(1 0 0 1 4.0034 146.1294)" font-family="'MyriadPro-Regular'" font-size="12">Personal Web Server</text>
+	<rect x="5.259" y="157.367" fill="none" width="117.573" height="32.543"/>
+	<text transform="matrix(1 0 0 1 5.2593 163.7568)"><tspan x="0" y="0" font-family="'MyriadPro-Regular'" font-size="9">• Deploy repository code to </tspan><tspan x="0" y="10.8" font-family="'MyriadPro-Regular'" font-size="9">web hosting for remote access </tspan><tspan x="0" y="21.6" font-family="'MyriadPro-Regular'" font-size="9">from any device</tspan></text>
+</g>
+<g>
+	<g>
+		<rect x="0.5" y="497.519" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="101.438"/>
+		<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="0.5" y1="518.578" x2="126.86" y2="518.578"/>
+	</g>
+	<rect x="3.429" y="502.958" fill="none" width="119.666" height="17.99"/>
+	<text transform="matrix(1 0 0 1 3.4287 511.4775)" font-family="'MyriadPro-Regular'" font-size="12">3D Graphics Library</text>
+	<rect x="4.685" y="524.714" fill="none" width="117.573" height="70.713"/>
+	<text transform="matrix(1 0 0 1 4.6846 531.1045)"><tspan x="0" y="0" font-family="'MyriadPro-Regular'" font-size="9">• 3D Geometry</tspan><tspan x="0" y="10.8" font-family="'MyriadPro-Regular'" font-size="9">• Camera placement &amp; </tspan><tspan x="0" y="21.6" font-family="'MyriadPro-Regular'" font-size="9">movement</tspan><tspan x="0" y="32.399" font-family="'MyriadPro-Regular'" font-size="9">• Curve generation</tspan><tspan x="0" y="43.2" font-family="'MyriadPro-Regular'" font-size="9">• 3D and geometric helper </tspan><tspan x="0" y="54" font-family="'MyriadPro-Regular'" font-size="9">methods</tspan></text>
+</g>
+<g>
+	<g>
+		<rect x="3.375" y="658.847" fill="#FFFFFF" stroke="#231F20" stroke-miterlimit="10" width="126.36" height="101.438"/>
+		<line fill="none" stroke="#231F20" stroke-miterlimit="10" x1="3.375" y1="679.906" x2="129.734" y2="679.906"/>
+	</g>
+	<rect x="3.375" y="664.286" fill="none" width="119.666" height="17.991"/>
+	<text transform="matrix(1 0 0 1 3.3745 672.8066)" font-family="'MyriadPro-Regular'" font-size="12">Output view</text>
+	<g>
+		
+			<image overflow="visible" width="1177" height="551" xlink:href="621207B1.jpg"  transform="matrix(0.0995 0 0 -0.101 7.3745 747.1602)">
+		</image>
+	</g>
+</g>
+<g>
+	<g>
+		<polygon fill="#202020" points="49.28,115.299 54.152,123.736 59.023,132.169 63.895,123.736 68.766,115.299 60.43,115.299 
+			60.43,46.061 57.617,46.061 57.617,115.299 		"/>
+	</g>
+</g>
+<g>
+	<g>
+		<polygon fill="#202020" points="49.28,246.968 54.152,255.406 59.023,263.839 63.895,255.406 68.766,246.968 60.43,246.968 
+			60.43,192.793 57.617,192.793 57.617,246.968 		"/>
+	</g>
+</g>
+<g>
+	<g>
+		<polygon fill="#202020" points="49.28,335.959 54.152,344.397 59.023,352.83 63.895,344.397 68.766,335.959 60.43,335.959 
+			60.43,333.522 60.43,309.4 57.617,309.4 57.617,333.522 57.617,335.959 		"/>
+	</g>
+</g>
+<g>
+	<g>
+		<polygon fill="#202020" points="49.28,480.647 54.152,489.086 59.023,497.519 63.895,489.086 68.766,480.647 60.43,480.647 
+			60.43,478.211 60.43,454.27 57.617,454.27 57.617,478.211 57.617,480.647 		"/>
+	</g>
+</g>
+<g>
+	<g>
+		<polygon fill="#202020" points="49.28,641.976 54.152,650.414 59.023,658.847 63.895,650.414 68.766,641.976 60.43,641.976 
+			60.43,598.957 57.617,598.957 57.617,641.976 		"/>
+	</g>
+</g>
+</svg>
