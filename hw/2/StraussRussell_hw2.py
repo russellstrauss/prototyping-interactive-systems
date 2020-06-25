@@ -8,7 +8,7 @@ from PIL import Image, ImageTk
 from playsound import playsound
 
 root = Tk()
-root.minsize(425, 100)
+root.minsize(825, 100)
 
 class Checklist(Frame):
 	def __init__(self, step, group_label, parent=None, picks=[], side=LEFT, anchor=W):
@@ -70,10 +70,10 @@ class ParticipantInfo(Step):
 		super().__init__(parent, data, stepname)
 
 		self.step_label = step_label
-		lbl1 = Label(self, text=self.step_label)
+		lbl1 = Label(self, text=self.step_label, font="bold")
 		lbl1.pack(side="top", fill="x", padx=5, pady=5)
 	
-		my_frame = Frame(self)
+		my_frame = Frame(self, width=825)
 		my_frame = set_up_participant_info(self, my_frame)
 		my_frame.pack(padx=15, pady=15)
 
@@ -120,7 +120,7 @@ class MultipleChoiceStep(Step):
 		self.options = options
 		self.answer = answer
 	
-		my_frame = Frame(self)
+		my_frame = Frame(self, width=825)
 		my_frame = set_up_multiple_choice(self, my_frame)
 		my_frame.pack(padx=10, pady=10)
 
@@ -153,12 +153,12 @@ class MultiselectStep(Step):
 		super().__init__(parent, data, stepname)
 
 		self.step_label = step_label
-		lbl1 = Label(self, text=self.step_label)
+		lbl1 = Label(self, text=self.step_label, font="bold")
 		lbl1.pack(side="top", fill="x", padx=5, pady=5)
 		self.question = question
 		self.options = options
 	
-		my_frame = Frame(self)
+		my_frame = Frame(self, width=825)
 		my_frame = set_up_multiselect(self, my_frame)
 		my_frame.pack(padx=10, pady=10)
 
@@ -213,10 +213,10 @@ class MemorizationStep(Step):
 		super().__init__(parent, data, stepname)
 
 		self.page_label = page_label
-		lbl1 = Label(self, text=self.page_label)
+		lbl1 = Label(self, text=self.page_label, font="bold")
 		lbl1.pack(side="top", fill="x")
 
-		my_frame = Frame(self)
+		my_frame = Frame(self, width=825)
 		my_frame = set_up_memorization(self, my_frame)
 		my_frame.pack(padx=10, pady=10)
 
@@ -227,6 +227,105 @@ class MemorizationStep(Step):
 		self.data[self.stepname]["likert_score"] = event
 
 def set_up_tlx(self, my_frame):
+	
+	current_row = 0
+	mental_demand_label = Label(my_frame, text="Mental Demand", font="bold", pady=10)
+	mental_demand_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	mental_demand_description = Label(my_frame, text="How much mental and perceptual activity was required? Was the task easy or demanding, simple or complex, exacting or forgiving?")
+	mental_demand_description.grid(row=current_row, sticky=W)
+	
+	current_row += 1
+	mental_demand_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("mental_demand"))
+	mental_demand_scale.set(50)
+	mental_demand_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
+	physical_demand_label = Label(my_frame, text="Physical Demand", font="bold", pady=10)
+	physical_demand_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	physical_demand_description = Label(my_frame, text="How much physical activity was required? Was the task easy or demanding, slow or brisk, slack or strenuous, restful or laborious?")
+	physical_demand_description.grid(row=current_row, sticky=W)
+	current_row += 1
+	physical_demand_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("physical_demand"))
+	physical_demand_scale.set(50)
+	physical_demand_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
+	temporal_demand_label = Label(my_frame, text="Temporal Demand", font="bold", pady=10)
+	temporal_demand_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	temporal_demand_description = Label(my_frame, text="How much time pressure did you feel due to the rate of pace at which the tasks or task elements occurred? Was the pace slow and leisurely or rapid and frantic?")
+	temporal_demand_description.grid(row=current_row, sticky=W)
+	current_row += 1
+	temporal_demand_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("temporal_demand"))
+	temporal_demand_scale.set(50)
+	temporal_demand_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
+	performance_label = Label(my_frame, text="Performance", font="bold", pady=10)
+	performance_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	performance_description = Label(my_frame, text="How successful do you think you were in accomplishing the goals of the task set by the experimenter (or yourself)? How satisfied were you with your performance in accomplishing these goals?")
+	performance_description.grid(row=current_row, sticky=W)
+	current_row += 1
+	performance_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("performance"))
+	performance_scale.set(50)
+	performance_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
+	effort_label = Label(my_frame, text="Effort", font="bold", pady=10)
+	effort_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	effort_description = Label(my_frame, text="How hard did you have to work (mentally and physically) to accomplish your level of performance?")
+	effort_description.grid(row=current_row, sticky=W)
+	current_row += 1
+	effort_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("effort"))
+	effort_scale.set(50)
+	effort_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
+	frustration_label = Label(my_frame, text="Frustration", font="bold", pady=10)
+	frustration_label.grid(row=current_row, sticky=W)
+	current_row += 1
+	frustration_description = Label(my_frame, text="How insecure, discouraged, irritated, stressed and annoyed versus secure, gratified, content, relaxed and complacent did you feel during the task?")
+	frustration_description.grid(row=current_row, sticky=W)
+	current_row += 1
+	frustration_scale = Scale(my_frame, from_=0, to=100, length=800, tickinterval=5, orient=HORIZONTAL, command=self.updateValue("frustration"))
+	frustration_scale.set(50)
+	frustration_scale.grid(row=current_row, sticky=W)
+	current_row += 1
+	low_label = Label(my_frame, text="Low")
+	high_label = Label(my_frame, text="High")
+	low_label.grid(row=current_row, sticky=W)
+	high_label.grid(row=current_row, sticky=E)
+	current_row += 1
+	
 	return my_frame
 
 class TLXScaleStep(Step):
@@ -234,22 +333,19 @@ class TLXScaleStep(Step):
 		super().__init__(parent, data, stepname)
 
 		self.page_label = page_label
-		lbl1 = Label(self, text=self.page_label)
+		lbl1 = Label(self, text=self.page_label, font="bold")
 		lbl1.pack(side="top", fill="x")
 
-		my_frame = Frame(self)
+		my_frame = Frame(self, width=825)
 		my_frame = set_up_tlx(self, my_frame)
 		my_frame.pack(padx=10, pady=10)
-		
-		likertscale = Scale(self, from_=0, to=100, length=400, tickinterval=5, orient=HORIZONTAL, command=self.updateValue)
-		likertscale.set(0)
-		likertscale.pack()
 
 		self.data[self.stepname]["page_label"] = self.page_label
-		# self.data[self.stepname]["likert_score"] = likertscale.get()
+		# self.data[self.stepname]["mental_demand"] = self.mental_demand
 
 	def updateValue(self, event):
-		self.data[self.stepname]["likert_score"] = event
+		print(event)
+		# self.data[self.stepname]["likert_score"] = event
 
 class MyWizard(Wizard):
 	def __init__(self, parent, data):

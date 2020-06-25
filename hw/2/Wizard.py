@@ -57,7 +57,7 @@ class Wizard(Frame):
 		self.data = data
 
 		self.button_frame = Frame(self, bd=1, relief="raised")
-		self.content_frame = Frame(self, width=425)
+		self.content_frame = Frame(self, width=825)
 
 		self.back_button = Button(self.button_frame, text="<< Back", command=self.back)
 		self.next_button = Button(self.button_frame, text="Next >>", command=self.next)
