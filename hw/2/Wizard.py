@@ -96,10 +96,20 @@ class Wizard(Frame):
 	def next(self):
 		self.current_step_index += 1
 		self.show_step(self.current_step_index)
-
+	
+	def calculate_TLX_score(self):
+		mental_demand_score = int(self.data["tlx-raw-rating"]["mental_demand"]) * int(self.data["tlx-rank-weights"]["mental_demand"])
+		physical_demand_score = int(self.data["tlx-raw-rating"]["physical_demand"]) * int(self.data["tlx-rank-weights"]["physical_demand"])
+		temporal_demand_score = int(self.data["tlx-raw-rating"]["temporal_demand"]) * int(self.data["tlx-rank-weights"]["temporal_demand"])
+		effort_score = int(self.data["tlx-raw-rating"]["effort"]) * int(self.data["tlx-rank-weights"]["effort"])
+		performance_score = int(self.data["tlx-raw-rating"]["performance"]) * int(self.data["tlx-rank-weights"]["performance"])
+		frustration_score = int(self.data["tlx-raw-rating"]["frustration"]) * int(self.data["tlx-rank-weights"]["frustration"])
+		return (mental_demand_score + physical_demand_score + temporal_demand_score + effort_score + performance_score + frustration_score) / 15
+	
 	def finish(self):
 		self.current_step_index = 0
 
+		self.data["tlx-raw-rating"]["total_weighted_rating"] = self.calculate_TLX_score()
 		print("data is: ")
 		pretty_data = json.dumps(self.data, indent=4)
 		print(pretty_data)

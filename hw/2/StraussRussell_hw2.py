@@ -84,7 +84,6 @@ class ParticipantInfo(Step):
 		self.data[self.stepname][field_label] = state
 	
 	def updateEntry(self, field_label, field_input_text):
-		print("Participant info step update fire")
 		self.data[self.stepname][field_label] = field_input_text.get()
 
 def set_up_multiple_choice(self, my_frame):
@@ -217,6 +216,26 @@ class MemorizationStep(Step):
 		self.page_label = page_label
 		lbl1 = Label(self, text=self.page_label, font="bold")
 		lbl1.pack(side="top", fill="x")
+		
+		self.blocks = []
+		for index in range(15):
+			if (index < 5):
+				block = []
+				for i in range(3):
+					block.append(random.randint(0, 3))
+				self.blocks.append(block)
+			elif (index < 10):
+				block = []
+				for i in range(6):
+					block.append(random.randint(0, 3))
+				self.blocks.append(block)
+			elif (index < 15):
+				block = []
+				for i in range(9):
+					block.append(random.randint(0, 3))
+				self.blocks.append(block)
+		
+		print(self.blocks)
 
 		my_frame = Frame(self, width=825)
 		my_frame = set_up_memorization(self, my_frame)
@@ -332,7 +351,7 @@ def set_up_tlx(self, my_frame):
 class TLXScaleStep(Step):
 	def __init__(self, parent, data, stepname, page_label):
 		super().__init__(parent, data, stepname)
-
+		self.data["tlx-raw-rating"]["total_weighted_rating"] = 0
 		self.page_label = page_label
 		lbl1 = Label(self, text=self.page_label, font="bold")
 		lbl1.pack(side="top", fill="x")
@@ -422,11 +441,10 @@ class MyWizard(Wizard):
 	def __init__(self, parent, data):
 		super().__init__(parent, data)
 		steps = [
-					TLXScaleStep(self, self.data, "tlx-scales", "TLX Analysis"),
+					TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis"),
 					MemorizationStep(self, self.data, "memorization", "Memorization Analysis"),
 					ParticipantInfo(self, self.data, "initialization", "Participant Info")
 				]
-		# steps = []
 		for index, pair in enumerate(pairwise_factors):
 			# if (index == 0):
 			steps.append(TLXRankStep(self, self.data, "tlx-weight-rank-step-" + str(index+1), "TLX Task Ranking", pair))
