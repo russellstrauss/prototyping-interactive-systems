@@ -101,9 +101,9 @@ class Wizard(Frame):
 		self.current_step_index = 0
 
 		print("data is: ")
-		# pretty_data = json.dumps(self.data, indent=4)
-		# print(pretty_data)
-		print(self.data)
+		pretty_data = json.dumps(self.data, indent=4)
+		print(pretty_data)
+		# print(self.data)
 
 		self.parent.quit()
 
