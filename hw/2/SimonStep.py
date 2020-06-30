@@ -3,6 +3,7 @@ import random
 from picturesoundbutton import PictureSoundButton
 from Wizard import Step, Wizard
 from PIL import Image, ImageTk
+from datetime import datetime
 
 class SimonStep(Step):
 	def __init__(self, parent, data, stepname, num_trials, mem_seq_len):
@@ -20,14 +21,14 @@ class SimonStep(Step):
 		self.disable_buttons()
 		
 		row = 0
-		self.description.grid(row=row, column=0, columnspan=3)
+		self.description.grid(row=row, column=0, columnspan=3, pady=20)
 		row += 1
-		self.top_button.grid(row=row, column=1, ipadx=40, ipady=40)
+		self.top_button.grid(row=row, column=1, ipadx=40, ipady=40, padx=20, pady=10)
 		row += 1
-		self.left_button.grid(row=row, column=0, ipadx=40, ipady=40)
-		self.right_button.grid(row=row, column=2, ipadx=40, ipady=40)
+		self.left_button.grid(row=row, column=0, ipadx=40, ipady=40, padx=20, pady=20)
+		self.right_button.grid(row=row, column=2, ipadx=40, ipa	 dy=40, padx=20, pady=20)
 		row += 1
-		self.bottom_button.grid(row=row, column=1, ipadx=40, ipady=40)
+		self.bottom_button.grid(row=row, column=1, ipadx=40, ipady=40, padx=20, pady=10)
 		
 		self.mem_seq_len = mem_seq_len
 		self.btn_list = ["top", "bottom", "left", "right"]
@@ -98,14 +99,14 @@ class SimonStep(Step):
 
 	def start_user_response(self):
 		self.curr_target_index = 0
-		#self.user_response_allowed = True
+		self.user_response_allowed = True
 		self.enable_buttons()
 		dat = {"target": self.target_mem_seq, "response": []}
 		self.data[self.stepname]["responses"].append(dat)
 
 	def start_stimulus_presentation(self):
 		self.disable_buttons()
-		#self.user_response_allowed = False
+		self.user_response_allowed = False
 		if self.curr_trial >= self.target_trials:
 			self._build_finished_animation()
 		else:
@@ -114,13 +115,13 @@ class SimonStep(Step):
 
 	def start_correct_presentation(self):
 		self.disable_buttons()
-		#self.user_response_allowed = False
+		self.user_response_allowed = False
 		self._build_correct_animation()
 		self.doanim()
 
 	def start_wrong_presentation(self):
 		self.disable_buttons()
-		#self.user_response_allowed = False
+		self.user_response_allowed = False
 		self._build_wrong_animation()
 		self.doanim()
 
@@ -205,23 +206,20 @@ class SimonStep(Step):
 		if not self.user_response_allowed:
 			return
 
-		dat = btn_name
+		dat = { "button": btn_name, "timestamp": str(datetime.now()) }
 		self.data[self.stepname]["responses"][-1]["response"].append(dat)
 
 		if btn_name != self.target_mem_seq[self.curr_target_index]:
 			# start failure presentation, chained with stimulus unless at end
-			print("Failure!!!")
 			self.data[self.stepname]["responses"][-1]["success"] = False
 			self.curr_trial += 1
 			self.start_wrong_presentation()
 		elif self.curr_target_index >= len(self.target_mem_seq) - 1:
 			# start reward presentation, chained with stimulus unless at end
-			print("Success!!")
 			self.data[self.stepname]["responses"][-1]["success"] = True
 			self.curr_trial += 1
 			self.start_correct_presentation()
 		else:
-			print("Good so far...")
 			self.curr_target_index += 1
 
 	def top_button_action(self, event):

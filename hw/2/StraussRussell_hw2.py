@@ -274,11 +274,11 @@ def set_up_tlx_ranking(self, my_frame, pair):
 	answer_selection = StringVar()
 	answer_selection.trace("w", lambda name, index, mode, sv=answer_selection: self.updateEntry("user_response", answer_selection))
 
-	radio_option_1 = Radiobutton(my_frame, text=pair[0].replace("_", " "), variable=answer_selection, value=pair[0])
+	radio_option_1 = Radiobutton(my_frame, text=pair[0].replace("_", " "), variable=answer_selection, value=pair[0], command=self._step_completed)
 	radio_option_1.grid(row=current_row, column=0, sticky=W)
 	current_row += 1
 	
-	radio_option_2 = Radiobutton(my_frame, text=pair[1].replace("_", " "), variable=answer_selection, value=pair[1])
+	radio_option_2 = Radiobutton(my_frame, text=pair[1].replace("_", " "), variable=answer_selection, value=pair[1], command=self._step_completed)
 	radio_option_2.grid(row=current_row, column=0, sticky=W)
 	current_row += 1
 		
@@ -298,6 +298,7 @@ class TLXRankStep(Step):
 		for factor in tlx_scale_factors:
 			self.data["tlx-rank-weights"][factor] = 0
 		self.user_response = ""
+		self._step_not_completed()
 
 		my_frame = Frame(self, width=825)
 		my_frame = set_up_tlx_ranking(self, my_frame, pair)
@@ -309,19 +310,17 @@ class TLXRankStep(Step):
 		if (answer_selection.get() != "no response"):
 			self.data["tlx-rank-weights"][answer_selection.get()] += 1
 		self.data[self.stepname][key] = answer_selection.get()
+		# self._step_completed()
 
 class MyWizard(Wizard):
 	def __init__(self, parent, data):
 		super().__init__(parent, data)
 		steps = [
-					ParticipantInfo(self, self.data, "initialization", "Participant Info")
-					SimonStep(self, self.data, "SIMON0", 2, 2),
-					SimonStep(self, self.data, "SIMON1", 2, 2),
-					
-					# SimonStep(self, self.data, "SIMON0", 5, 3),
-					# SimonStep(self, self.data, "SIMON1", 5, 6),
-					# SimonStep(self, self.data, "SIMON2", 5, 9),
-					TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis"),
+					ParticipantInfo(self, self.data, "initialization", "Participant Info"),
+					SimonStep(self, self.data, "simon-1", 5, 3),
+					SimonStep(self, self.data, "simon-2", 5, 6),
+					SimonStep(self, self.data, "simon3", 5, 9),
+					TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis")
 				]
 		for index, pair in enumerate(pairwise_factors):
 			# if (index == 0):
