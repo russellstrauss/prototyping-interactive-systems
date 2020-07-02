@@ -1,8 +1,5 @@
-# from pandac.PandaModules import loadPrcFileData
-# loadPrcFileData('', 'load-display tinydisplay')
-# loadPrcFileData('', 'bullet-enable-contact-events true')
-
 import sys
+import math
 import direct.directbase.DirectStart
 
 from direct.showbase.DirectObject import DirectObject
@@ -33,13 +30,21 @@ from panda3d.bullet import XUp
 from panda3d.bullet import YUp
 from panda3d.bullet import ZUp
 
+# myGameServer = ConfigVariableString('my-game-server', '127.0.0.1')
+# print('Server specified in config file: ', myGameServer.getValue())
+
+# # Allow the user to change servers on the command-line.
+# if (sys.argv[1] == '--server'):
+#     myGameServer.setValue(sys.argv[2])
+# print('Server that we will use: ', myGameServer.getValue())
+
 class Game(DirectObject):
 
 	def __init__(self):
-		base.setBackgroundColor(0.1, 0.1, 0.8, 1)
+		base.setBackgroundColor(0.1, 0.1, 0.5, 1)
 		base.setFrameRateMeter(True)
 
-		base.cam.setPos(0, -20, 4)
+		base.cam.setPos(0, -20, 1)
 		base.cam.lookAt(0, 0, 0)
 
 		# Light
@@ -59,10 +64,10 @@ class Game(DirectObject):
 		# Input
 		self.accept('escape', self.doExit)
 		self.accept('r', self.doReset)
-		self.accept('f1', self.toggleWireframe)
-		self.accept('f2', self.toggleTexture)
-		self.accept('f3', self.toggleDebug)
-		self.accept('f5', self.doScreenshot)
+		self.accept('1', self.toggleWireframe)
+		self.accept('2', self.toggleTexture)
+		self.accept('3', self.toggleDebug)
+		self.accept('4', self.doScreenshot)
 
 		inputState.watchWithModifiers('forward', 'w')
 		inputState.watchWithModifiers('left', 'a')
@@ -144,7 +149,8 @@ class Game(DirectObject):
 		self.debugNP.node().showNormals(True)
 
 		self.world = BulletWorld()
-		self.world.setGravity(Vec3(0, 0, -9.81))
+		# self.world.setGravity(Vec3(0, 0, -9.81))
+		self.world.setGravity(Vec3(0, 0, 0))
 		self.world.setDebugNode(self.debugNP.node())
 
 		# Plane (static)
@@ -152,7 +158,7 @@ class Game(DirectObject):
 
 		np = self.worldNP.attachNewNode(BulletRigidBodyNode('Ground'))
 		np.node().addShape(shape)
-		np.setPos(0, 0, -1)
+		np.setPos(0, 0, 0)
 		np.setCollideMask(BitMask32.allOn())
 
 		self.world.attachRigidBody(np.node())
@@ -165,38 +171,46 @@ class Game(DirectObject):
 		np.node().addShape(shape)
 		np.setPos(0, 0, 4)
 		np.setCollideMask(BitMask32.allOn())
-
 		self.world.attachRigidBody(np.node())
 
 		self.boxNP = np # For applying force & torque
 
 		# Cone (dynamic)
-		shape = BulletConeShape(0.6, 1.2, ZUp)
+		# shape = BulletConeShape(0.6, 1.2, ZUp)
 
-		np = self.worldNP.attachNewNode(BulletRigidBodyNode('Cone'))
-		np.node().setMass(1.0)
-		np.node().addShape(shape)
-		np.setPos(4, 0, 4)
-		np.setCollideMask(BitMask32.allOn())
+		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Cone'))
+		# np.node().setMass(1.0)
+		# np.node().addShape(shape)
+		# np.setPos(4, 0, 4)
+		# np.setCollideMask(BitMask32.allOn())
 
-		self.world.attachRigidBody(np.node())
+		# self.world.attachRigidBody(np.node())
 
 		# Convex (dynamic)
-		shape = BulletConvexHullShape()
-		shape.addPoint(Point3(1, 1, 2))
-		shape.addPoint(Point3(0, 0, 0))
-		shape.addPoint(Point3(2, 0, 0))
-		shape.addPoint(Point3(0, 2, 0))
-		shape.addPoint(Point3(2, 2, 0))
-	
-	# weird shape
-		np = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
-		np.node().setMass(1.0)
-		np.node().addShape(shape)
-		np.setPos(-4, 4, 4)
-		np.setCollideMask(BitMask32.allOn())
+		# shape = BulletConvexHullShape()
+		# shape.addPoint(Point3(1, 1, 2))
+		# shape.addPoint(Point3(0, 0, 0))
+		# shape.addPoint(Point3(2, 0, 0))
+		# shape.addPoint(Point3(0, 2, 0))
+		# shape.addPoint(Point3(2, 2, 0))
+		# # weird shape
+		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
+		# np.node().setMass(1.0)
+		# np.node().addShape(shape)
+		# np.setPos(-4, 4, 4)
+		# np.setCollideMask(BitMask32.allOn())
+		
+		# curve = BulletConvexHullShape()
+		# for index in range(100):
+		# 	curve.addPoint(Point3(10 * math.sin(index), (index / 4), 10 *math.cos(index)))
+		
+		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
+		# np.node().setMass(1.0)
+		# np.node().addShape(curve)
+		# np.setPos(0, 0, 0)
 
-		self.world.attachRigidBody(np.node())
+		# self.world.attachRigidBody(np.node())
 
 game = Game()
+base.useDrive()
 base.run()
