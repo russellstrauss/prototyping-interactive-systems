@@ -129,19 +129,27 @@ class Game(ShowBase):
 		force *= 30.0
 		torque *= 10.0
 
-		self.boxNP.node().setActive(True)
-		self.boxNP.node().applyCentralForce(force)
-		self.boxNP.node().applyTorque(torque)
+		# self.boxNP.node().setActive(True)
+		# self.boxNP.node().applyCentralForce(force)
+		# self.boxNP.node().applyTorque(torque)
 
 	def renderLoop(self, task):
 		dt = globalClock.getDt()
 		self.processInput(dt)
 		self.world.doPhysics(dt)
 		
-		speed = .25
-		self.progress += (dt / 100) * speed
+		speed = .1
+		self.progress += (dt / 10) * speed
 		if (self.progress > 1):
 			self.progress = 0
+			
+		self.updateCameraAlongCurve()
+		
+		self.count += 1 # increment frame count
+		return task.cont
+	
+	def updateCameraAlongCurve(self):
+		
 		curve_index = round(len(self.curve) * self.progress)
 		
 		# iterate one by one through elements in curve trajectory array
@@ -154,18 +162,18 @@ class Game(ShowBase):
 			base.cam.setPos(base.cam.getX(), base.cam.getY(), 0)
 		
 		# turn to face focal object after each pos update
-		base.cam.lookAt(self.boxNP.getX(), self.boxNP.getY(), self.boxNP.getZ())
-		self.count += 1 # increment frame count
-		return task.cont
-
+		base.cam.lookAt(self.viewing_object.getX(), self.viewing_object.getY(), self.viewing_object.getZ() + 6)
+	
 	def cleanup(self):
 		self.world = None
 		self.worldNP.removeNode()
 
 	def setup(self):
-		self.worldNP = render.attachNewNode('World')
-
+		
+		self.viewing_object = None
+		
 		# World
+		self.worldNP = render.attachNewNode('World')
 		self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
 		self.debugNP.show()
 		self.debugNP.node().showWireframe(True)
@@ -187,77 +195,58 @@ class Game(ShowBase):
 		self.world.attachRigidBody(nodePath.node())
 
 		# Box (dynamic)
-		shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
-		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().addShape(shape)
-		nodePath.setPos(0, 0, 4)
-		self.world.attachRigidBody(nodePath.node())
-		self.boxNP = nodePath # For applying force & torque
+		# shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
+		# nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		# nodePath.node().addShape(shape)
+		# nodePath.setPos(0, 0, 4)
+		# # self.world.attachRigidBody(nodePath.node())
+		# self.boxNP = nodePath # For applying force & torque
 		
-		# box
-		shape = BulletBoxShape(Vec3(1, 1, 1))
-		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().addShape(shape)
-		nodePath.setPos(0, 10, 10)
-		self.world.attachRigidBody(nodePath.node())
-		# box
-		shape = BulletBoxShape(Vec3(.25, .25, .25))
-		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().addShape(shape)
-		nodePath.setPos(10, 6, 8)
-		self.world.attachRigidBody(nodePath.node())
+		# # box
+		# shape = BulletBoxShape(Vec3(1, 1, 1))
+		# nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		# nodePath.node().addShape(shape)
+		# nodePath.setPos(0, 10, 10)
+		# self.world.attachRigidBody(nodePath.node())
+		# # box
+		# shape = BulletBoxShape(Vec3(.25, .25, .25))
+		# nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		# nodePath.node().addShape(shape)
+		# nodePath.setPos(10, 6, 8)
+		# self.world.attachRigidBody(nodePath.node())
 		
-		# curve = BulletConvexHullShape()
-		# for index in range(10):
-		# 	curve.addPoint(Point3(10 * math.sin(index), (index / 4), 10 *math.cos(index)))
 		
-		# nodePat = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
-		# nodePath.node().setMass(1.0)
-		# nodePath.node().addShape(curve)
-		# nodePath.setPos(-100, 0, 0)
-		# # self.boxNP = nodePat
-		# self.world.attachRigidBody(nodepath..node())
-
-		# Another way to create the triangle mesh shape:
-		#geom = loader.loadModel('models/box.egg')\
-		#         .findAllMatches('**/+GeomNode')\
-		#         .getPath(0)\
-		#         .node()\
-		#         .getGeom(0)
-		#mesh = BulletTriangleMesh()
-		#mesh.addGeom(geom)
-		#shape = BulletTriangleMeshShape(mesh, dynamic=False)
-		
-		# visNP = loader.loadModel('models/pyramid.egg')
-		# geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)
-		# mesh = BulletTriangleMesh()
-		# mesh.addGeom(geom)
-		# shape = BulletTriangleMeshShape(mesh, dynamic=True)
-
-		# body = BulletRigidBodyNode('Bowl')
-		# bodyNP = self.worldNP.attachNewNode(body)
-		# bodyNP.node().addShape(shape)
+		visNP = loader.loadModel('models/bunny.obj')
+		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)
+		mesh = BulletTriangleMesh()
+		mesh.addGeom(geom)
+		shape = BulletTriangleMeshShape(mesh, dynamic=True)
+		body = BulletRigidBodyNode('Bowl')
+		bodyNP = self.worldNP.attachNewNode(body)
+		bodyNP.node().addShape(shape)
 		# bodyNP.node().setMass(10.0)
-		# bodyNP.setPos(0, 0, 0)
-		# bodyNP.setScale(1)
-		# bodyNP.setCollideMask(BitMask32.allOn())
-		# self.world.attachRigidBody(bodyNP.node())
-
+		bodyNP.setHpr(0, 90,0)
+		bodyNP.setPos(0, 0, -1.7)
+		bodyNP.setCollideMask(BitMask32.allOn())
+		self.world.attachRigidBody(bodyNP.node())
 		# visNP.reparentTo(bodyNP)
+		bodyNP.setScale(50)
+		self.viewing_object = bodyNP
 		
 		self.curve = []
 		self.progress = 0
+		self.showCurve = False
 		lineThickness = 1
 		ls = LineSegs("LogSpiral")
 		ls.setThickness(lineThickness)
 
-		a = 0.7
+		a = 0.17
 		k = .01
 		lower_bound = 0
-		radius_scale = 40
+		radius_scale = 100
 		
-		iteration_count = 20001
-		step_delta = 0.01
+		iteration_count = 40001
+		step_delta = 0.001
 		curve_length = step_delta * iteration_count
 		
 		for index in np.arange(step_delta, curve_length, step_delta):
@@ -267,10 +256,11 @@ class Game(ShowBase):
 			spiral_y = radius_scale * a * pow(math.e, k * index) * math.sin(index)
 			spiral_z = (index) + lower_bound
 			
-			alpha = 0
-			# ls.drawTo(spiral_x, spiral_y, spiral_z)
+			if (self.showCurve):
+				ls.drawTo(spiral_x, spiral_y, spiral_z)
 			self.curve.append(Vec3(spiral_x, spiral_y, spiral_z))
-			
+		
+		# self.curve.reverse()
 		node = ls.create(dynamic=False)
 		body = BulletRigidBodyNode('lsRB')
 		bodyNP = self.worldNP.attachNewNode(body)
