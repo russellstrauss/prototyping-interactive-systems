@@ -1,6 +1,17 @@
+
+from panda3d.core import loadPrcFileData
+
+from win32api import GetSystemMetrics
+screen_width = str(GetSystemMetrics(0))
+screen_height = str(GetSystemMetrics(1))
+loadPrcFileData('', 'win-size ' + screen_width + ' ' + screen_height)
+loadPrcFileData('', 'load-display pandagl')
+
 import sys
 import math
-import direct.directbase.DirectStart
+import numpy as np
+from direct.showbase.ShowBase import ShowBase
+base = ShowBase()
 
 from direct.showbase.DirectObject import DirectObject
 from direct.showbase.InputStateGlobal import inputState
@@ -12,6 +23,7 @@ from panda3d.core import Vec4
 from panda3d.core import Point3
 from panda3d.core import TransformState
 from panda3d.core import BitMask32
+from panda3d.core import LineSegs, NodePath
 
 from panda3d.bullet import BulletWorld
 from panda3d.bullet import BulletPlaneShape
@@ -30,22 +42,15 @@ from panda3d.bullet import XUp
 from panda3d.bullet import YUp
 from panda3d.bullet import ZUp
 
-# myGameServer = ConfigVariableString('my-game-server', '127.0.0.1')
-# print('Server specified in config file: ', myGameServer.getValue())
-
-# # Allow the user to change servers on the command-line.
-# if (sys.argv[1] == '--server'):
-#     myGameServer.setValue(sys.argv[2])
-# print('Server that we will use: ', myGameServer.getValue())
-
-class Game(DirectObject):
-
+class Game(ShowBase):
+	
 	def __init__(self):
+		
 		base.setBackgroundColor(0.1, 0.1, 0.5, 1)
 		base.setFrameRateMeter(True)
 
-		base.cam.setPos(0, -20, 1)
-		base.cam.lookAt(0, 0, 0)
+		# base.cam.setPos(0, 20, 1)
+		# base.cam.lookAt(0, 0, 0)
 
 		# Light
 		alight = AmbientLight('ambientLight')
@@ -77,7 +82,8 @@ class Game(DirectObject):
 		inputState.watchWithModifiers('turnRight', 'e')
 
 		# Task
-		taskMgr.add(self.update, 'updateWorld')
+		self.count = 1
+		taskMgr.add(self.renderLoop, 'updateWorld')
 
 		# Physics
 		self.setup()
@@ -127,10 +133,24 @@ class Game(DirectObject):
 		self.boxNP.node().applyCentralForce(force)
 		self.boxNP.node().applyTorque(torque)
 
-	def update(self, task):
+	def renderLoop(self, task):
 		dt = globalClock.getDt()
 		self.processInput(dt)
 		self.world.doPhysics(dt)
+		
+		camera_x = 0
+		camera_y = -25
+		# camera_z = 20*math.cos(self.count/10)
+		camera_z = 2
+		
+		base.cam.setPos(camera_x, camera_y, camera_z)
+		
+		if (base.cam.getZ() < 0):
+			base.cam.setPos(base.cam.getX(), base.cam.getY(), 0)
+		
+		base.cam.lookAt(self.boxNP.getX(), self.boxNP.getY(), self.boxNP.getZ())
+		self.count += 1
+		
 		return task.cont
 
 	def cleanup(self):
@@ -155,62 +175,95 @@ class Game(DirectObject):
 
 		# Plane (static)
 		shape = BulletPlaneShape(Vec3(0, 0, 1), 0)
-
-		np = self.worldNP.attachNewNode(BulletRigidBodyNode('Ground'))
-		np.node().addShape(shape)
-		np.setPos(0, 0, 0)
-		np.setCollideMask(BitMask32.allOn())
-
-		self.world.attachRigidBody(np.node())
+		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Ground'))
+		nodePath.node().addShape(shape)
+		nodePath.setPos(0, 0, 0)
+		nodePath.setCollideMask(BitMask32.allOn())
+		self.world.attachRigidBody(nodePath.node())
 
 		# Box (dynamic)
 		shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
-
-		np = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		np.node().setMass(1.0)
-		np.node().addShape(shape)
-		np.setPos(0, 0, 4)
-		np.setCollideMask(BitMask32.allOn())
-		self.world.attachRigidBody(np.node())
-
-		self.boxNP = np # For applying force & torque
-
-		# Cone (dynamic)
-		# shape = BulletConeShape(0.6, 1.2, ZUp)
-
-		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Cone'))
-		# np.node().setMass(1.0)
-		# np.node().addShape(shape)
-		# np.setPos(4, 0, 4)
-		# np.setCollideMask(BitMask32.allOn())
-
-		# self.world.attachRigidBody(np.node())
-
-		# Convex (dynamic)
-		# shape = BulletConvexHullShape()
-		# shape.addPoint(Point3(1, 1, 2))
-		# shape.addPoint(Point3(0, 0, 0))
-		# shape.addPoint(Point3(2, 0, 0))
-		# shape.addPoint(Point3(0, 2, 0))
-		# shape.addPoint(Point3(2, 2, 0))
-		# # weird shape
-		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
-		# np.node().setMass(1.0)
-		# np.node().addShape(shape)
-		# np.setPos(-4, 4, 4)
-		# np.setCollideMask(BitMask32.allOn())
+		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		nodePath.node().setMass(1.0)
+		nodePath.node().addShape(shape)
+		nodePath.setPos(0, 0, 4)
+		self.world.attachRigidBody(nodePath.node())
+		self.boxNP = nodePath # For applying force & torque
+		
+		# # box
+		shape = BulletBoxShape(Vec3(1, 1, 1))
+		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		nodePath.node().setMass(1.0)
+		nodePath.node().addShape(shape)
+		nodePath.setPos(0, 10, 10)
+		self.world.attachRigidBody(nodePath.node())
+		# box
+		shape = BulletBoxShape(Vec3(.25, .25, .25))
+		nodePat = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		nodePath.node().setMass(1.0)
+		nodePath.node().addShape(shape)
+		nodePath.setPos(10, 6, 8)
+		self.world.attachRigidBody(nodePath.node())
 		
 		# curve = BulletConvexHullShape()
-		# for index in range(100):
+		# for index in range(10):
 		# 	curve.addPoint(Point3(10 * math.sin(index), (index / 4), 10 *math.cos(index)))
 		
-		# np = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
-		# np.node().setMass(1.0)
-		# np.node().addShape(curve)
-		# np.setPos(0, 0, 0)
+		# nodePat = self.worldNP.attachNewNode(BulletRigidBodyNode('Convex'))
+		# nodePath.node().setMass(1.0)
+		# nodePath.node().addShape(curve)
+		# nodePath.setPos(-100, 0, 0)
+		# # self.boxNP = nodePat
+		# self.world.attachRigidBody(nodepath..node())
 
-		# self.world.attachRigidBody(np.node())
+		# Another way to create the triangle mesh shape:
+		#geom = loader.loadModel('models/box.egg')\
+		#         .findAllMatches('**/+GeomNode')\
+		#         .getPath(0)\
+		#         .node()\
+		#         .getGeom(0)
+		#mesh = BulletTriangleMesh()
+		#mesh.addGeom(geom)
+		#shape = BulletTriangleMeshShape(mesh, dynamic=False)
+		
+		# visNP = loader.loadModel('models/pyramid.egg')
+		# geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)
+		# mesh = BulletTriangleMesh()
+		# mesh.addGeom(geom)
+		# shape = BulletTriangleMeshShape(mesh, dynamic=True)
 
+		# body = BulletRigidBodyNode('Bowl')
+		# bodyNP = self.worldNP.attachNewNode(body)
+		# bodyNP.node().addShape(shape)
+		# bodyNP.node().setMass(10.0)
+		# bodyNP.setPos(0, 0, 0)
+		# bodyNP.setScale(1)
+		# bodyNP.setCollideMask(BitMask32.allOn())
+		# self.world.attachRigidBody(bodyNP.node())
+
+		# visNP.reparentTo(bodyNP)
+		
+		lineThickness = 1
+		ls = LineSegs("LogSpiral")
+		ls.setThickness(lineThickness)
+
+		a = 0.1
+		k = .01
+		
+		for index in np.arange(.1, 500, 0.1):
+			
+			spiral_x = a * pow(math.e, k * index) * math.cos(index)
+			spiral_y = a * pow(math.e, k * index) * math.sin(index)
+			spiral_z = index*index / 30000
+			
+			# ls.setColor(1.0, 1.0, 1.0, 1.0)
+			ls.drawTo(spiral_x, spiral_y, spiral_z)
+			
+		node = ls.create(dynamic=False)
+		body = BulletRigidBodyNode('lsRB')
+		bodyNP = self.worldNP.attachNewNode(body)
+		lsNP = bodyNP.attachNewNode(node)
+		
 game = Game()
-base.useDrive()
+# base.useDrive()
 base.run()
