@@ -138,12 +138,10 @@ class Game(ShowBase):
 		self.processInput(dt)
 		self.world.doPhysics(dt)
 		
-		camera_x = 0
-		camera_y = -25
-		# camera_z = 20*math.cos(self.count/10)
-		camera_z = 2
-		
-		base.cam.setPos(camera_x, camera_y, camera_z)
+		curve_x = self.curve[self.count % len(self.curve)].getX()
+		curve_y = self.curve[self.count % len(self.curve)].getY()
+		curve_z = self.curve[self.count % len(self.curve)].getZ()
+		base.cam.setPos(curve_x, curve_y, curve_z)
 		
 		if (base.cam.getZ() < 0):
 			base.cam.setPos(base.cam.getX(), base.cam.getY(), 0)
@@ -190,7 +188,7 @@ class Game(ShowBase):
 		self.world.attachRigidBody(nodePath.node())
 		self.boxNP = nodePath # For applying force & torque
 		
-		# # box
+		# box
 		shape = BulletBoxShape(Vec3(1, 1, 1))
 		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
 		nodePath.node().setMass(1.0)
@@ -199,7 +197,7 @@ class Game(ShowBase):
 		self.world.attachRigidBody(nodePath.node())
 		# box
 		shape = BulletBoxShape(Vec3(.25, .25, .25))
-		nodePat = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
+		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
 		nodePath.node().setMass(1.0)
 		nodePath.node().addShape(shape)
 		nodePath.setPos(10, 6, 8)
@@ -243,21 +241,25 @@ class Game(ShowBase):
 
 		# visNP.reparentTo(bodyNP)
 		
+		self.curve = []
 		lineThickness = 1
 		ls = LineSegs("LogSpiral")
 		ls.setThickness(lineThickness)
 
-		a = 0.1
+		a = 0.7
 		k = .01
+		lower_bound = 5
 		
-		for index in np.arange(.1, 500, 0.1):
+		for index in np.arange(0.1, 500, 0.1):
 			
 			spiral_x = a * pow(math.e, k * index) * math.cos(index)
 			spiral_y = a * pow(math.e, k * index) * math.sin(index)
-			spiral_z = index*index / 30000
+			spiral_z = (index*index / 10000) + lower_bound
 			
-			# ls.setColor(1.0, 1.0, 1.0, 1.0)
+			alpha = 0
+			ls.setColor(1.0, 1.0, 1.0, alpha)
 			ls.drawTo(spiral_x, spiral_y, spiral_z)
+			self.curve.append(Vec3(spiral_x, spiral_y, spiral_z))
 			
 		node = ls.create(dynamic=False)
 		body = BulletRigidBodyNode('lsRB')
