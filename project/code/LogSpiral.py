@@ -138,17 +138,24 @@ class Game(ShowBase):
 		self.processInput(dt)
 		self.world.doPhysics(dt)
 		
-		curve_x = self.curve[self.count % len(self.curve)].getX()
-		curve_y = self.curve[self.count % len(self.curve)].getY()
-		curve_z = self.curve[self.count % len(self.curve)].getZ()
+		speed = .25
+		self.progress += (dt / 100) * speed
+		if (self.progress > 1):
+			self.progress = 0
+		curve_index = round(len(self.curve) * self.progress)
+		
+		# iterate one by one through elements in curve trajectory array
+		curve_x = self.curve[curve_index].getX()
+		curve_y = self.curve[curve_index].getY()
+		curve_z = self.curve[curve_index].getZ()
 		base.cam.setPos(curve_x, curve_y, curve_z)
 		
-		if (base.cam.getZ() < 0):
+		if (base.cam.getZ() < 0): # make sure camera is never below the ground
 			base.cam.setPos(base.cam.getX(), base.cam.getY(), 0)
 		
+		# turn to face focal object after each pos update
 		base.cam.lookAt(self.boxNP.getX(), self.boxNP.getY(), self.boxNP.getZ())
-		self.count += 1
-		
+		self.count += 1 # increment frame count
 		return task.cont
 
 	def cleanup(self):
@@ -182,7 +189,6 @@ class Game(ShowBase):
 		# Box (dynamic)
 		shape = BulletBoxShape(Vec3(0.5, 0.5, 0.5))
 		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().setMass(1.0)
 		nodePath.node().addShape(shape)
 		nodePath.setPos(0, 0, 4)
 		self.world.attachRigidBody(nodePath.node())
@@ -191,14 +197,12 @@ class Game(ShowBase):
 		# box
 		shape = BulletBoxShape(Vec3(1, 1, 1))
 		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().setMass(1.0)
 		nodePath.node().addShape(shape)
 		nodePath.setPos(0, 10, 10)
 		self.world.attachRigidBody(nodePath.node())
 		# box
 		shape = BulletBoxShape(Vec3(.25, .25, .25))
 		nodePath = self.worldNP.attachNewNode(BulletRigidBodyNode('Box'))
-		nodePath.node().setMass(1.0)
 		nodePath.node().addShape(shape)
 		nodePath.setPos(10, 6, 8)
 		self.world.attachRigidBody(nodePath.node())
@@ -242,23 +246,29 @@ class Game(ShowBase):
 		# visNP.reparentTo(bodyNP)
 		
 		self.curve = []
+		self.progress = 0
 		lineThickness = 1
 		ls = LineSegs("LogSpiral")
 		ls.setThickness(lineThickness)
 
 		a = 0.7
 		k = .01
-		lower_bound = 5
+		lower_bound = 0
+		radius_scale = 40
 		
-		for index in np.arange(0.1, 500, 0.1):
+		iteration_count = 20001
+		step_delta = 0.01
+		curve_length = step_delta * iteration_count
+		
+		for index in np.arange(step_delta, curve_length, step_delta):
 			
-			spiral_x = a * pow(math.e, k * index) * math.cos(index)
-			spiral_y = a * pow(math.e, k * index) * math.sin(index)
-			spiral_z = (index*index / 10000) + lower_bound
+			# Calculate curve point position
+			spiral_x = radius_scale * a * pow(math.e, k * index) * math.cos(index)
+			spiral_y = radius_scale * a * pow(math.e, k * index) * math.sin(index)
+			spiral_z = (index) + lower_bound
 			
 			alpha = 0
-			ls.setColor(1.0, 1.0, 1.0, alpha)
-			ls.drawTo(spiral_x, spiral_y, spiral_z)
+			# ls.drawTo(spiral_x, spiral_y, spiral_z)
 			self.curve.append(Vec3(spiral_x, spiral_y, spiral_z))
 			
 		node = ls.create(dynamic=False)
