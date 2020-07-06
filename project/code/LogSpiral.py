@@ -54,7 +54,8 @@ class LogSpiral(ShowBase):
 		
 		base.setBackgroundColor(0.1, 0.1, 0.5, 1)
 		base.setFrameRateMeter(True)
-
+		
+		self.addSliders()
 		# base.cam.setPos(0, 20, 1)
 		# base.cam.lookAt(0, 0, 0)
 
@@ -79,6 +80,8 @@ class LogSpiral(ShowBase):
 		self.accept('2', self.toggleTexture)
 		self.accept('3', self.toggleDebug)
 		self.accept('4', self.doScreenshot)
+		self.accept('g', self.startAnimation)
+		self.accept('c', self.toggleCurveVisibility)
 
 		inputState.watchWithModifiers('forward', 'w')
 		inputState.watchWithModifiers('left', 'a')
@@ -95,7 +98,26 @@ class LogSpiral(ShowBase):
 		self.setup()
 
 	# _____HANDLER_____
-
+	
+	def setDefaults(self):
+		self.animating = False
+		self.a = .1
+		self.viewing_object = None
+		self.viewing_distance = 1000
+		self.curve_segment = None
+		self.show_curve = True
+	
+	def startAnimation(self):
+		self.doReset()
+		self.animating = not self.animating
+	
+	def toggleCurveVisibility(self):
+		self.show_curve = not self.show_curve
+		if (self.show_curve):
+			self.curve_segment.show()
+		else:
+			self.curve_segment.hide()
+	
 	def doExit(self):
 		self.cleanup()
 		sys.exit(1)
@@ -156,9 +178,7 @@ class LogSpiral(ShowBase):
 	
 	def updateCamera(self):
 		
-		animate = False
-		
-		if animate:
+		if self.animating:
 			curve_index = round(len(self.curve) * self.progress)
 			
 			# iterate one by one through elements in curve trajectory array
@@ -178,12 +198,82 @@ class LogSpiral(ShowBase):
 	def cleanup(self):
 		self.world = None
 		self.worldNP.removeNode()
+		
+	def addSliders(self):
+		
+		def updateViewingDistance():
+			self.viewing_distance = sliders[0]["object"]['value']
+			print(self.viewing_distance)
+			
+		def updateAValue():
+			self.a = sliders[1]["object"]['value']
+			print(sliders[1]["object"]['value'])
+			# self.doReset()
+			self.createCurve()
+			
+		sliders = [
+			{ "text": "Viewing Distance", "range": (10, 10000), "value": 100, "pageSize": 1000, "method": updateViewingDistance },
+			{ "text": "Log Spiral \"a\" Coeffificient", "range": (.001, 1), "value": .1, "pageSize": .1, "method": updateAValue }
+		]
+		
+		for index, slider in enumerate(sliders):
+			label_text = slider["text"]
+			
+			y_position = .95 - (.1 * index)
+			position = (-1.75, y_position)
+			
+			textObject = OnscreenText(text=label_text,
+				pos=position,
+				scale=0.02,
+				fg=(1, 0.5, 0.5, 1),
+				align=TextNode.ALeft,
+				mayChange=1)
+				
+			y_position = .95 - (.2 * index)
+			position = (0, -1.75, y_position)
+			slider["object"] = DirectSlider(range=slider["range"], value=slider["value"], pageSize=slider["pageSize"], command=slider["method"],
+				pos=position,
+				frameSize=(-1.75, -1, -0.008, 0.008),
+				frameVisibleScale=(1, 0.25))
+						
+		
+		# viewing_distance_slider = DirectSlider(range=(10, 10000), value=100, pageSize=1000, command=updateViewingDistance,
+		# 	pos=(0, -1.75, .925),
+		# 	frameSize=(-1.75, -1, -0.008, 0.008),
+		# 	frameVisibleScale=(1, 0.25))
+		
+		# label_text = "Viewing Distance"
+		# textObject = OnscreenText(text=label_text,
+		# 				pos=(-1.75, .95),
+		# 				scale=0.02,
+		# 				fg=(1, 0.5, 0.5, 1),
+		# 				align=TextNode.ALeft,
+		# 				mayChange=1)
+						
+		
+		# viewing_distance_slider = DirectSlider(range=(10, 10000), value=100, pageSize=1000, command=updateViewingDistance,
+		# 	pos=(0, -1.75, .925),
+		# 	frameSize=(-1.75, -1, -0.008, 0.008),
+		# 	frameVisibleScale=(1, 0.25))
+			
+		# label_text = "Log Spiral \"a\" Coeffificient"
+		# textObject = OnscreenText(text=label_text,
+		# 				pos=(-1.75, .88),
+		# 				scale=0.02,
+		# 				fg=(1, 0.5, 0.5, 1),
+		# 				align=TextNode.ALeft,
+		# 				mayChange=1)
+						
+		
+		
+		# slider = DirectSlider(range=(.001, 1), value=.1, pageSize=.1, command=updateAValue,
+		# 	pos=(0, -1.75, .85),
+		# 	frameSize=(-1.75, -1, -0.008, 0.008),
+		# 	frameVisibleScale=(1, 0.25))
 
 	def setup(self):
 		
-		self.viewing_object = None
-		self.viewing_distance = 1000
-		
+		self.setDefaults()
 		# World
 		self.worldNP = render.attachNewNode('World')
 		self.debugNP = self.worldNP.attachNewNode(BulletDebugNode('Debug'))
@@ -222,24 +312,16 @@ class LogSpiral(ShowBase):
 		bodyNP.setScale(50)
 		self.viewing_object = bodyNP
 		
+		self.createCurve()
+
+	def createCurve(self):
 		self.curve = []
 		self.progress = 0
 		self.showCurve = True
-		lineThickness = 1
+		lineThickness = 2
 		ls = LineSegs("LogSpiral")
 		ls.setThickness(lineThickness)
-		
-		def updateValue():
-			self.viewing_distance = slider['value']
-			print(slider['value'])
-	
-		
-		size = .0001
-		slider = DirectSlider(range=(1, 10000), value=0.15, pageSize=1000, command=updateValue,
-			frameSize=(-1.75, -1, -0.008, 0.008),
-			frameVisibleScale=(1, 0.25))
 
-		a = 0.2
 		k = .5
 		lower_bound = 0
 		radius_scale = 1
@@ -251,8 +333,8 @@ class LogSpiral(ShowBase):
 		for index in np.arange(step_delta, curve_length, step_delta):
 			
 			# Calculate curve point position
-			spiral_x = radius_scale * a * pow(math.e, k * index) * math.cos(index)
-			spiral_y = radius_scale * a * pow(math.e, k * index) * math.sin(index)
+			spiral_x = radius_scale * self.a * pow(math.e, k * index) * math.cos(index)
+			spiral_y = radius_scale * self.a * pow(math.e, k * index) * math.sin(index)
 			spiral_z = (index*index/2) + lower_bound
 			
 			if (self.showCurve):
@@ -260,10 +342,11 @@ class LogSpiral(ShowBase):
 			self.curve.append(Vec3(spiral_x, spiral_y, spiral_z))
 		
 		self.curve.reverse()
+		if (self.curve_segment != None): self.curve_segment.removeNode()
 		node = ls.create(dynamic=False)
 		body = BulletRigidBodyNode('lsRB')
 		bodyNP = self.worldNP.attachNewNode(body)
-		lsNP = bodyNP.attachNewNode(node)
+		self.curve_segment = bodyNP.attachNewNode(node)
 		
 animation = LogSpiral()
 # base.useDrive()
