@@ -1,6 +1,5 @@
 
 from panda3d.core import loadPrcFileData
-from forbiddenfruit import curse
 
 from win32api import GetSystemMetrics
 screen_width = str(GetSystemMetrics(0))
@@ -300,12 +299,15 @@ class LogSpiral(ShowBase):
 				frameVisibleScale=(1, 0.25))
 		
 		buttons = [
-			{ "text": "Load Model", "event": self.loadModel, "extraArgs": [0] },
-			{ "text": "Hide Model", "event": self.toggleViewingObjectVisibility, "extraArgs": [1] }
+			{ "text": "(L) Load Model", "event": self.loadModel, "extraArgs": [0] },
+			{ "text": "(H) Hide Model", "event": self.toggleViewingObjectVisibility, "extraArgs": [1] },
+			{ "text": "(G) Toggle Motion", "event": self.startAnimation, "extraArgs": [2] },
+			{ "text": "(C) Hide Curve", "event": self.toggleCurveVisibility, "extraArgs": [3] }
+			# { "text": "(Q) Hide Menu", "event": self.loadModel, "extraArgs": [0] },
 		]
 		
 		for index, button in enumerate(buttons):
-			position = (-1.7 + (.15 * index), 0, -.98)	
+			position = (-1.7 + (.2 * index), 0, -.98)	
 			button["object"] = DirectButton(text=(button["text"]),
 				pos=position,
 				scale=0.02,
