@@ -25,8 +25,9 @@ from panda3d.core import Point3
 from panda3d.core import TransformState
 from panda3d.core import BitMask32
 from panda3d.core import LineSegs, NodePath
+from panda3d.core import TextNode
 
-# cleanup
+# cleanup me
 from panda3d.bullet import BulletWorld
 from panda3d.bullet import BulletPlaneShape
 from panda3d.bullet import BulletBoxShape
@@ -48,7 +49,9 @@ from panda3d.bullet import ZUp
 import direct.directbase.DirectStart
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.DirectGui import *
-from panda3d.core import TextNode
+
+from tkinter.filedialog import askopenfilename
+from tkinter import Tk
 
 class Node(NodePath):
 	def __init__(self, node):
@@ -92,7 +95,7 @@ class LogSpiral(ShowBase):
 		self.accept("4", self.doScreenshot)
 		self.accept("g", self.startAnimation)
 		self.accept("c", self.toggleCurveVisibility)
-		self.accept("h", self.toggleVisibility)
+		self.accept("h", self.toggleViewingObjectVisibility)
 
 		inputState.watchWithModifiers("forward", "w")
 		inputState.watchWithModifiers("left", "a")
@@ -112,6 +115,7 @@ class LogSpiral(ShowBase):
 	
 	def setDefaults(self):
 		self.animating = False
+		self.viewing_object_hidden = False
 		self.a = .75
 		self.k = .5
 		self.viewing_object = None
@@ -124,6 +128,7 @@ class LogSpiral(ShowBase):
 		self.lower_bound = 1
 		self.truncate_percentage = .25
 		self.height_scale = 1
+		self.viewing_object_scaling = 1
 	
 	def startAnimation(self):
 		self.animating = not self.animating
@@ -135,15 +140,13 @@ class LogSpiral(ShowBase):
 		else:
 			self.curve_segment.hide()
 			
-	def toggleVisibility(self):
-		# print(self.viewing_object.hidden)
-		# if (self.viewing_object.hidden):
-		# 	self.viewing_object.show()
-		# else:
-		# 	self.viewing_object.hide()
+	def toggleViewingObjectVisibility(self):
+		if (self.viewing_object_hidden):
+			self.world.attachRigidBody(self.viewing_object.node())
+		else:
+			self.world.removeRigidBody(self.viewing_object.node())
+		self.viewing_object_hidden = not self.viewing_object_hidden
 		
-		self.viewing_object.hide()
-	
 	def doExit(self):
 		self.cleanup()
 		sys.exit(1)
@@ -161,6 +164,27 @@ class LogSpiral(ShowBase):
 			self.debugNP.hide()
 	def doScreenshot(self):
 		base.screenshot("Bullet")
+	def loadModel(self):
+		
+		if (self.viewing_object): self.world.removeRigidBody(self.viewing_object.node())
+		
+		Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+		filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+		# filename = "models/new2.obj"
+		pandafile = Filename.fromOsSpecific(filename)
+		viewing_object_NP = loader.loadModel(pandafile)
+		geom = viewing_object_NP.findAllMatches("**/+GeomNode").getPath(0).node().getGeom(0)
+		mesh = BulletTriangleMesh()
+		mesh.addGeom(geom)
+		shape = BulletTriangleMeshShape(mesh, dynamic=True)
+		body = BulletRigidBodyNode("viewing_object")
+		self.viewing_object = self.worldNP.attachNewNode(body)
+		self.viewing_object.node().addShape(shape)
+		# bodyNP.setHpr(0, 90,0)
+		# bodyNP.setPos(0, 0, -1.7)
+		self.viewing_object.setCollideMask(BitMask32.allOn())
+		self.world.attachRigidBody(self.viewing_object.node())
+		self.viewing_object.setScale(50)
 		
 	def renderLoop(self, task):
 		dt = globalClock.getDt()
@@ -177,26 +201,28 @@ class LogSpiral(ShowBase):
 	
 	def updateCamera(self):
 		
-		if self.animating:
-			curve_index = round(len(self.curve) * self.progress)
-			if (curve_index < 1):
-				print(curve_index, len(self.curve), self.progress)
-				self.createCurve()
-			
-			# iterate one by one through elements in curve trajectory array
-			curve_x = self.curve[curve_index].getX()
-			curve_y = self.curve[curve_index].getY()
-			curve_z = self.curve[curve_index].getZ()
-			base.cam.setPos(curve_x, curve_y, curve_z)
+		curve_index = round(len(self.curve) * self.progress)
+		if self.animating and len(self.curve) > 0:
+			try:
+				# iterate one by one through elements in curve trajectory array
+				curve_x = self.curve[curve_index].getX()
+				curve_y = self.curve[curve_index].getY()
+				curve_z = self.curve[curve_index].getZ()
+				base.cam.setPos(curve_x, curve_y, curve_z)
+			except:
+				print(sys.exc_info()[0])
+				print("\n\n")
+				print("Curve length: ")
+				print(len(self.curve))
+				print("curve index: ")
+				print(curve_index)
 			
 			if (base.cam.getZ() < 0): # make sure camera is never below the ground
 				base.cam.setPos(base.cam.getX(), base.cam.getY(), 0)
-		else:
-			
+		else: # viewing condition
 			quat = Quat()
 			quat.setFromAxisAngle(self.viewing_angle, Vec3(0, 0, 1))
 			rotated_vec = quat.xform(Vec3(1, -1, .5))
-			
 			base.cam.setPos(rotated_vec * self.viewing_distance)
 	
 		# turn to face focal object after each pos update
@@ -234,19 +260,23 @@ class LogSpiral(ShowBase):
 		def updateHeightScale(sliderIndex):
 			self.height_scale = sliders[sliderIndex]["object"]["value"]
 			self.createCurve()
+		def updateViewingObjectScale(sliderIndex):
+			self.viewing_object_scaling = sliders[sliderIndex]["object"]["value"]
+			self.viewing_object.setScale(self.viewing_object_scaling)
 		
 		# if "myVar" in locals(): print(len(sliders))
 		
 		sliders = [
-			{ "text": "Viewing Distance", "range": (10, 2500), "value": self.viewing_distance, "pageSize": 100, "method": updateViewingDistance, "extraArgs": [0] },
-			{ "text": "Viewing Angle", "range": (0, 360), "value": self.viewing_angle, "pageSize": 2, "method": updateViewingAngle, "extraArgs": [1] },
-			{ "text": "Log Spiral \"a\" Coeffificient", "range": (.001, 1), "value": self.a, "pageSize": .1, "method": updateAValue, "extraArgs": [2] },
-			{ "text": "Log Spiral \"k\" Coeffificient", "range": (.001, 1), "value": self.k, "pageSize": .1, "method": updateKValue, "extraArgs": [3] },
-			{ "text": "Camera Movement Speed", "range": (.01, 3), "value": self.speed, "pageSize": .1, "method": updateSpeed, "extraArgs": [4] },
-			{ "text": "Radial Scale", "range": (1, 10), "value": self.radius_scale, "pageSize": .25, "method": updateRadialScale, "extraArgs": [5] },
-			{ "text": "Height Scale", "range": (1, 10), "value": self.height_scale, "pageSize": .5, "method": updateHeightScale, "extraArgs": [6] },
-			{ "text": "Lift", "range": (0, 100), "value": self.lower_bound, "pageSize": 100, "method": updateLowerBound, "extraArgs": [7] },
-			{ "text": "Truncate", "range": (.001, 1), "value": self.truncate_percentage, "pageSize": .1, "method": updateTruncationPoint, "extraArgs": [8] }
+			{ "text": "Viewing Distance", "range": (10, 10000), "value": self.viewing_distance, "pageSize": 100, "event": updateViewingDistance, "extraArgs": [0] },
+			{ "text": "Viewing Angle", "range": (0, 360), "value": self.viewing_angle, "pageSize": 2, "event": updateViewingAngle, "extraArgs": [1] },
+			{ "text": "Log Spiral \"a\" Coeffificient", "range": (-3, 3), "value": self.a, "pageSize": .1, "event": updateAValue, "extraArgs": [2] },
+			{ "text": "Log Spiral \"k\" Coeffificient", "range": (.01, 1), "value": self.k, "pageSize": .1, "event": updateKValue, "extraArgs": [3] },
+			{ "text": "Camera Movement Speed", "range": (.01, 3), "value": self.speed, "pageSize": .1, "event": updateSpeed, "extraArgs": [4] },
+			{ "text": "Radial Scale", "range": (1, 10), "value": self.radius_scale, "pageSize": .25, "event": updateRadialScale, "extraArgs": [5] },
+			{ "text": "Height Scale", "range": (1, 20), "value": self.height_scale, "pageSize": .5, "event": updateHeightScale, "extraArgs": [6] },
+			{ "text": "Lift", "range": (0, 100), "value": self.lower_bound, "pageSize": 100, "event": updateLowerBound, "extraArgs": [7] },
+			{ "text": "Truncate", "range": (.001, 1), "value": self.truncate_percentage, "pageSize": .1, "event": updateTruncationPoint, "extraArgs": [8] },
+			{ "text": "Scale Viewing Object", "range": (.001, 100), "value": self.viewing_object_scaling, "pageSize": .1, "event": updateViewingObjectScale, "extraArgs": [9] },
 		]
 		
 		for index, slider in enumerate(sliders):
@@ -263,11 +293,23 @@ class LogSpiral(ShowBase):
 				
 			y_position = .95 - (.06 * index)
 			position = (0, -1.75, y_position)
-			slider["object"] = DirectSlider(range=slider["range"], value=slider["value"], pageSize=slider["pageSize"], command=slider["method"],
+			slider["object"] = DirectSlider(range=slider["range"], value=slider["value"], pageSize=slider["pageSize"], command=slider["event"],
 				extraArgs = slider["extraArgs"],
 				pos=position,
 				frameSize=(-1.75, -1.5, -0.008, 0.008),
 				frameVisibleScale=(1, 0.25))
+		
+		buttons = [
+			{ "text": "Load Model", "event": self.loadModel, "extraArgs": [0] },
+			{ "text": "Hide Model", "event": self.toggleViewingObjectVisibility, "extraArgs": [1] }
+		]
+		
+		for index, button in enumerate(buttons):
+			position = (-1.7 + (.15 * index), 0, -.98)	
+			button["object"] = DirectButton(text=(button["text"]),
+				pos=position,
+				scale=0.02,
+				command=button["event"])
 
 	def setup(self):
 		
@@ -298,20 +340,7 @@ class LogSpiral(ShowBase):
 		nodePath.setCollideMask(BitMask32.allOn())
 		self.world.attachRigidBody(nodePath.node())
 		
-		viewing_object_NP = loader.loadModel("models/bunny.obj")
-		geom = viewing_object_NP.findAllMatches("**/+GeomNode").getPath(0).node().getGeom(0)
-		mesh = BulletTriangleMesh()
-		mesh.addGeom(geom)
-		shape = BulletTriangleMeshShape(mesh, dynamic=True)
-		body = BulletRigidBodyNode("Bowl")
-		bodyNP = self.worldNP.attachNewNode(body)
-		bodyNP.node().addShape(shape)
-		bodyNP.setHpr(0, 90,0)
-		bodyNP.setPos(0, 0, -1.7)
-		bodyNP.setCollideMask(BitMask32.allOn())
-		self.world.attachRigidBody(bodyNP.node())
-		bodyNP.setScale(50)
-		self.viewing_object = bodyNP
+		self.loadModel()
 
 	def createCurve(self):
 		
@@ -332,7 +361,6 @@ class LogSpiral(ShowBase):
 			spiral_x = self.radius_scale * self.a * pow(math.e, self.k * index) * math.cos(index)
 			spiral_y = self.radius_scale * self.a * pow(math.e, self.k * index) * math.sin(index)
 			spiral_z = self.height_scale * self.height_scale * math.log(index, math.e) + self.lower_bound
-			if (spiral_z < 0): print(math.log(index, math.e))
 			
 			if (self.showCurve): ls.drawTo(spiral_x, spiral_y, spiral_z)
 			self.curve.append(Vec3(spiral_x, spiral_y, spiral_z))
@@ -345,7 +373,6 @@ class LogSpiral(ShowBase):
 		self.curve_segment = bodyNP.attachNewNode(node)
 		
 		if (not self.show_curve): self.curve_segment.hide()
-		print("Curve created of length " + str(len(self.curve)))
 		
 animation = LogSpiral()
 # base.useDrive()
