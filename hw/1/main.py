@@ -20,8 +20,8 @@ def load_json(filename):
 	except FileNotFoundError:
 		print("File" + filename + "not found.")
 
-#load_file = str(input("Enter the file name (without extension) for the data: "))
-load_file = "studydata2"
+load_file = str(input("Enter the file name (without extension) for the data: "))
+# load_file = "studydata2"
 config = load_csv(load_file + "_config.csv")[0]
 study_data = load_json(load_file + "_data.json")
 test_string = config[3]
@@ -143,8 +143,10 @@ while running:
 		
 	elif (query == "q"):
 		participant_id = str(input("Please enter participant ID. "))
+		participant_session = None
 		try:
 			participant_session = study_data[participant_id]
+			print("participant_session assigned")
 		except KeyError:
 			print("No participant with that ID found.")
 		
@@ -152,6 +154,7 @@ while running:
 			participant_stats = []
 			participant_typing_session_count = 0
 			average_time = datetime.timedelta(0)
+			average_time_delta = datetime.timedelta(0)
 			average_accuracy = 0.0
 			slowest_time = datetime.timedelta(0)
 			fastest_time = datetime.timedelta(hours=9999)

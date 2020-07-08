@@ -1,2 +1,0 @@
-Session,Trial,Timestamp,Test String,Num Participants,Total Typing Sessions,Average Time,Average Accuracy,Average Time Delta,Average Accuracy Delta,Slowest Time,Fastest Time,Least Accurate,Most Accurate,Worst Time Delta,Best Time Delta,Worst Accuracy Delta,Best Accuracy Delta
-2,1,2018-09-07 10:34:57,This is a test of the emergency broadcast network,9,35,0:00:07.079720,106.37142857142857,0:00:00.076970,-17.314285714285713,0:00:09.545438,0:00:00.724489,795.0,0.0,0:00:03.229269,"-1 day, 23:59:58.970916",14.0,-532.0

@@ -179,8 +179,8 @@ class LogSpiral(ShowBase):
 		body = BulletRigidBodyNode("viewing_object")
 		self.viewing_object = self.worldNP.attachNewNode(body)
 		self.viewing_object.node().addShape(shape)
-		# bodyNP.setHpr(0, 90,0)
-		# bodyNP.setPos(0, 0, -1.7)
+		# self.viewing_object.setHpr(0, 90,0)
+		self.viewing_object.setPos(100, 100, 0)
 		self.viewing_object.setCollideMask(BitMask32.allOn())
 		self.world.attachRigidBody(self.viewing_object.node())
 		self.viewing_object.setScale(50)
@@ -204,9 +204,9 @@ class LogSpiral(ShowBase):
 		if self.animating and len(self.curve) > 0:
 			try:
 				# iterate one by one through elements in curve trajectory array
-				curve_x = self.curve[curve_index].getX()
-				curve_y = self.curve[curve_index].getY()
-				curve_z = self.curve[curve_index].getZ()
+				curve_x = self.curve[curve_index - 1].getX()
+				curve_y = self.curve[curve_index - 1].getY()
+				curve_z = self.curve[curve_index - 1].getZ()
 				base.cam.setPos(curve_x, curve_y, curve_z)
 			except:
 				print(sys.exc_info()[0])
@@ -236,31 +236,40 @@ class LogSpiral(ShowBase):
 		
 		def updateViewingDistance(sliderIndex):
 			self.viewing_distance = sliders[sliderIndex]["object"]["value"]
+			print(self.viewing_distance)
 		def updateViewingAngle(sliderIndex):
 			self.viewing_angle = sliders[sliderIndex]["object"]["value"]
 			print(self.viewing_angle)
 		def updateAValue(sliderIndex):
 			self.a = sliders[sliderIndex]["object"]["value"]
+			print(self.a)
 			self.createCurve()
 		def updateKValue(sliderIndex):
 			self.k = sliders[sliderIndex]["object"]["value"]
+			print(self.k)
 			self.createCurve()
 		def updateSpeed(sliderIndex):
 			self.speed = sliders[sliderIndex]["object"]["value"]
+			print(self.speed)
 		def updateRadialScale(sliderIndex):
 			self.radius_scale = sliders[sliderIndex]["object"]["value"]
+			print(self.radius_scale)
 			self.createCurve()
 		def updateLowerBound(sliderIndex):
 			self.lower_bound = sliders[sliderIndex]["object"]["value"]
+			print(self.lower_bound)
 			self.createCurve()
 		def updateTruncationPoint(sliderIndex):
 			self.truncate_percentage = sliders[sliderIndex]["object"]["value"]
+			print(self.truncate_percentage)
 			self.createCurve()
 		def updateHeightScale(sliderIndex):
 			self.height_scale = sliders[sliderIndex]["object"]["value"]
+			print(self.height_scale)
 			self.createCurve()
 		def updateViewingObjectScale(sliderIndex):
 			self.viewing_object_scaling = sliders[sliderIndex]["object"]["value"]
+			print(self.viewing_object_scaling)
 			self.viewing_object.setScale(self.viewing_object_scaling)
 		
 		# if "myVar" in locals(): print(len(sliders))
