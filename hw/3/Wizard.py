@@ -1,5 +1,6 @@
 from tkinter import Frame, Button
 import json
+import client
 
 class Step(Frame):
 	
@@ -9,10 +10,10 @@ class Step(Frame):
 		self.data = data
 		self.stepname = stepname
 
-		if stepname not in self.data: # initialize key/value in dictionary, creating nested dictionary
-			self.data[stepname] = {}
-		else:
-			print(stepname + " appears to be a duplicate of a previous step!")
+		# if stepname not in self.data: # initialize key/value in dictionary, creating nested dictionary
+		# 	self.data[stepname] = {}
+		# else:
+		# 	print(stepname + " appears to be a duplicate of a previous step!")
 
 		self.completed = True
 		self.previous_enabled = True
@@ -42,7 +43,6 @@ class Step(Frame):
 	def allow_next(self):
 		return self.completed
 
-
 class Wizard(Frame):
 	
 	def __init__(self, parent, data): # parent is tkinter container, data is a dictionary where data will be stored for each Wizard step
@@ -55,18 +55,13 @@ class Wizard(Frame):
 
 		self.steps = []
 		self.data = data
-
 		self.button_frame = Frame(self, bd=1, relief="raised")
-		self.content_frame = Frame(self, width=825)
-
+		self.content_frame = Frame(self)
 		self.back_button = Button(self.button_frame, text="<< Back", command=self.back)
 		self.next_button = Button(self.button_frame, text="Next >>", command=self.next)
 		self.finish_button = Button(self.button_frame, text="Finish", command=self.finish)
-
 		self.content_frame.pack(side="top", fill="both", expand=True) # self.content_frame.pack_propagate(0)  # Don't allow the widgets inside to determine the frame's width / height
-
 		self.button_frame.pack(side="bottom", fill="x") # self.button_frame.pack_propagate(0)
-
 		self.bind("<<step_complete>>", self.step_complete) # register for events that steps might pass up to the wizard
 		self.bind("<<step_not_complete>>", self.step_not_complete)
 
@@ -97,24 +92,14 @@ class Wizard(Frame):
 		self.current_step_index += 1
 		self.show_step(self.current_step_index)
 	
-	def calculate_TLX_score(self):
-		mental_demand_score = int(self.data["tlx-raw-rating"]["mental_demand"]) * int(self.data["tlx-rank-weights"]["mental_demand"])
-		physical_demand_score = int(self.data["tlx-raw-rating"]["physical_demand"]) * int(self.data["tlx-rank-weights"]["physical_demand"])
-		temporal_demand_score = int(self.data["tlx-raw-rating"]["temporal_demand"]) * int(self.data["tlx-rank-weights"]["temporal_demand"])
-		effort_score = int(self.data["tlx-raw-rating"]["effort"]) * int(self.data["tlx-rank-weights"]["effort"])
-		performance_score = int(self.data["tlx-raw-rating"]["performance"]) * int(self.data["tlx-rank-weights"]["performance"])
-		frustration_score = int(self.data["tlx-raw-rating"]["frustration"]) * int(self.data["tlx-rank-weights"]["frustration"])
-		return (mental_demand_score + physical_demand_score + temporal_demand_score + effort_score + performance_score + frustration_score) / 15
-	
 	def finish(self):
+		
 		self.current_step_index = 0
-
-		self.data["tlx-raw-rating"]["total_weighted_rating"] = self.calculate_TLX_score()
 		print("data is: ")
 		pretty_data = json.dumps(self.data, indent=4)
 		print(pretty_data)
-		# print(self.data)
-
+		client.make_call(self.data)
+		
 		self.parent.quit()
 
 	def show_step(self, step):
@@ -161,65 +146,3 @@ class Wizard(Frame):
 
 			if not self.current_step.allow_previous():
 				self.back_button.pack_forget()
-
-
-if __name__ == "__main__":
-
-	from tkinter import Tk, Label, Button, Frame
-
-	class TestingDemoStep(Step): # A wizard step for testing purposes
-
-		def button0_clicked(self):
-			print("button0_clicked")
-
-			# The following demonstrates how to tell the wizard that a step has been satisfied
-			# For instance, the user cannot advance until they have entered some information
-			self._step_completed()
-
-		def button1_clicked(self):
-			print("button1_clicked")
-
-			# The following demonstrates how to tell the wizard that a step has been satisfied
-			# For instance, the user cannot advance until they have entered some information
-			self._step_not_completed()
-
-		def onscreen_enter(self):
-			super().onscreen_enter()
-
-			print("Step: " + self.stepname + " is now on the screen!")
-
-		def onscreen_exit(self):
-			super().onscreen_exit()
-
-			print("Step: " + self.stepname + " is now leaving the screen!")
-
-		def __init__(self, parent, data, stepname, iscomplete=True, isprevenabled=True):
-			super().__init__(parent, data, stepname)
-
-			self.completed = iscomplete
-			self.previous_enabled = isprevenabled
-			header = Label(self, text="This is a wizard step #: " + " " + self.stepname, bd=2, relief="groove")
-			header.pack(side="top", fill="x")
-
-			btn0 = Button(self, text="Click Me!", command=self.button0_clicked)
-			btn0.pack(side="top", fill="x")
-
-			btn1 = Button(self, text="Undo complete", command=self.button1_clicked)
-			btn1.pack(side="top", fill="x")
-
-			self.data[self.stepname]["demo"] = "DEMO STEP"
-
-
-	root = Tk()
-
-	data = {}
-	my_gui = Wizard(root, data)
-	steps = [TestingDemoStep(my_gui, data, "one", False, False),
-			TestingDemoStep(my_gui, data, "two", True, False),
-			TestingDemoStep(my_gui, data, "three", False, True)]
-
-	my_gui.set_steps(steps)
-	my_gui.pack()
-	my_gui.start()
-
-	root.mainloop()

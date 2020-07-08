@@ -22,8 +22,6 @@ def bootstrap_db():
 	conn.commit()
 	conn.close()
 
-
-# TODO I bet it is fine to leave sqlite connection persistent instead of opening/closing for each call
 def store_dream(dream):
 	conn = sqlite3.connect(DBNAME)
 	c = conn.cursor()
@@ -35,17 +33,11 @@ def store_dream(dream):
 	
 def get_dreams():
 	conn = sqlite3.connect(DBNAME)
-
 	c = conn.cursor()
-
 	c.execute('SELECT * FROM dreams')
-
 	ret = c.fetchall()
-	
 	conn.commit()
-
 	conn.close()  
-	
 	return ret
 
 @app.after_request

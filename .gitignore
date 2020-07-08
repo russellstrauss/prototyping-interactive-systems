@@ -3,3 +3,4 @@ project/panda3d-master
 *.flv
 *.7z
 .idea/
+**/__pycache__

@@ -45,14 +45,14 @@ class ParticipantInfo(Step):
 		lbl1 = Label(self, text=self.step_label, font="bold")
 		lbl1.pack(side="top", fill="x", padx=5, pady=5)
 	
-		my_frame = Frame(self, width=825)
+		my_frame = Frame(self)
 		my_frame = set_up_participant_info(self, my_frame)
 		my_frame.pack(padx=15, pady=15)
 
-		self.data[self.stepname]["step_label"] = self.step_label
+		self.data["step_label"] = self.step_label
 	
 	def updateChecklist(self, field_label, state):
-		self.data[self.stepname][field_label] = state
+		self.data[field_label] = state
 	
 	def updateEntry(self, field_label, field_input_text):
-		self.data[self.stepname][field_label] = field_input_text.get()
+		self.data[field_label] = field_input_text.get()
