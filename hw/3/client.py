@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import csv
 
 OUTPUT_ROOT_DIR_NAME = "output"
 
@@ -14,20 +15,27 @@ def check_make_output_root_dir():
 def make_call(data):
 	
 	endpoint = "https://ninth-wool-string.glitch.me/"
-	post_res = requests.post(endpoint + "dreams", json=data).json() # sending post request and saving response as response object
-
+	POST_request = requests.post(endpoint + "dreams", json=data).json() # sending post request and saving response as response object
+	
 	print('POST')
-	print(post_res)
-	res = requests.get(endpoint + "dreams").json()
+	print(POST_request)
+	GET_request = requests.get(endpoint + "dreams").json()
 	print('GET')
-	print(res)
-
-	json_data_str = json.dumps(res, indent=4, sort_keys=True)
+	print(GET_request)
+	
+	json_data_str = json.dumps(GET_request, indent=4, sort_keys=True)
 	print(json_data_str)
-
+	
+	# dump txt file
 	output_dir = check_make_output_root_dir()
 	output_path = os.path.join(output_dir, 'dump.txt')
-
+	
+	with open(os.path.join(output_dir, 'dump.csv'), mode='w', newline='') as csv_file:
+		csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+		csv_writer.writerow(['firstname', 'lastname', 'age', 'gender'])
+		for row in GET_request:
+			csv_writer.writerow(row)
+	
 	with open(output_path, 'w') as f:
 		f.write(json_data_str)
 		

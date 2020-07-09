@@ -6,33 +6,21 @@
         "M"
     ],
     [
-        "Russell",
-        "Strauss",
-        30,
-        "M"
+        "rrr",
+        "fff",
+        11,
+        "male"
     ],
     [
-        "Russell",
-        "Strauss",
-        30,
-        "M"
-    ],
-    [
-        "Russell2",
-        "Strauss",
-        30,
-        "M"
-    ],
-    [
-        "1",
-        "2",
+        "Dude",
+        "Guy",
         10,
         "male"
     ],
     [
-        "Russell",
-        "Bobberson",
-        99,
+        "Robert",
+        "Boberson",
+        11,
         "male"
     ]
 ]

@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from flask import Flask, request, render_template, jsonify
+import webbrowser
 
 app = Flask(__name__, static_folder='public', template_folder='views') # Support for gomix's 'front-end' and 'back-end' UI.
 app.secret = os.environ.get('SECRET') # Set the app secret key from the secret environment variables.
@@ -86,6 +87,8 @@ def dreams():
 	# Return the list of remembered dreams. 
 	#return jsonify(DREAMS)
 	return jsonify(get_dreams())
+
+webbrowser.open('http://127.0.0.1:5000', new=2)
 
 if __name__ == '__main__':
 	bootstrap_db()
