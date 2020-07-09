@@ -1,33 +1,45 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#       _                              
+#      | |                             
+#    __| |_ __ ___  __ _ _ __ ___  ___ 
+#   / _` | '__/ _ \/ _` | '_ ` _ \/ __|
+#  | (_| | | |  __/ (_| | | | | | \__ \
+#   \__,_|_|  \___|\__,_|_| |_| |_|___/ .
+#
+# A 'Fog Creek'–inspired demo by Kenneth Reitz™
+
 import os
 import sqlite3
 from flask import Flask, request, render_template, jsonify
 
-app = Flask(__name__, static_folder='public', template_folder='views') # Support for gomix's 'front-end' and 'back-end' UI.
-app.secret = os.environ.get('SECRET') # Set the app secret key from the secret environment variables.
-DREAMS = ['Python. Python, everywhere.'] # Dream database. Store dreams in memory for now. 
+app = Flask(__name__, static_folder='public', template_folder='views')
+app.secret = os.environ.get('SECRET')
+
+DEMOINFO = ("George","Burdell",94,"M")
 DBNAME = 'database.db'
 
-# TODO don't call this every start-up (see below where called in if...__MAIN__)
-# probably a way with flask to have an initial database.db instead
 def bootstrap_db():
 
 	if os.path.exists(DBNAME):
 		os.remove(DBNAME)
+
 	conn = sqlite3.connect(DBNAME)
 	c = conn.cursor()
-	c.execute('CREATE TABLE dreams (dream text)')
-	c.execute('INSERT INTO dreams VALUES (?)', DREAMS)
-	# c.execute('SELECT * FROM dreams')
-	# print("first dream in db: " + str(c.fetchone()))
+	c.execute('CREATE TABLE dreams(firstname text,lastname text, age int, gender text)')
+	c.execute('INSERT INTO  dreams(firstname,lastname,age,gender) VALUES (?,?,?,?)', DEMOINFO)
+	c.execute('SELECT * FROM dreams')
+	print("first dream in db: " + str(c.fetchone()))
 	conn.commit()
 	conn.close()
 
 def store_dream(dream):
 	conn = sqlite3.connect(DBNAME)
 	c = conn.cursor()
-	dream_dat = [dream,]
-	print("dream data to insert: " + str(dream_dat))
-	c.execute("INSERT INTO dreams VALUES (?)", dream_dat)
+	dream_dat = [dream["firstname"],dream["lastname"],dream["age"],dream["gender"]]
+	print("***********dream data to insert: ", dream_dat)
+	c.execute("INSERT INTO dreams(firstname,lastname,age,gender) VALUES (?,?,?,?)", dream_dat)
 	conn.commit()
 	conn.close()
 	
@@ -37,7 +49,7 @@ def get_dreams():
 	c.execute('SELECT * FROM dreams')
 	ret = c.fetchall()
 	conn.commit()
-	conn.close()  
+	conn.close() 
 	return ret
 
 @app.after_request
@@ -46,11 +58,12 @@ def apply_kr_hello(response):
 
 	# Made by Kenneth Reitz. 
 	if 'MADE_BY' in os.environ:
-			response.headers["X-Was-Here"] = os.environ.get('MADE_BY')
+		response.headers["X-Was-Here"] = os.environ.get('MADE_BY')
 	
 	# Powered by Flask. 
 	response.headers["X-Powered-By"] = os.environ.get('POWERED_BY')
 	return response
+
 
 @app.route('/')
 def homepage():
@@ -69,22 +82,9 @@ def dreams():
 		if request.is_json:
 			data = request.get_json()
 			print('JSON!')
-			print(data)
-		else:
-			# Note: request args is bad form for POSTs
-			# However, we're preserving this approach so that the HTML client
-			# can still work
-			data = request.args
-			print('NOT JSON!')
-			print(data)
-			
-		if 'dream' in data:
-			new_dream = data['dream']
-			# DREAMS.append(new_dream)
-			store_dream(new_dream)
-						
-	# Return the list of remembered dreams. 
-	#return jsonify(DREAMS)
+			print('storing')
+			store_dream(data)
+				
 	return jsonify(get_dreams())
 
 if __name__ == '__main__':
