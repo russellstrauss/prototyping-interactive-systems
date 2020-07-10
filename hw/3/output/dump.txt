@@ -6,21 +6,9 @@
         "M"
     ],
     [
-        "rrr",
-        "fff",
-        11,
-        "male"
-    ],
-    [
-        "Dude",
-        "Guy",
-        10,
-        "male"
-    ],
-    [
-        "Robert",
-        "Boberson",
-        11,
+        "R",
+        "Dawg",
+        30,
         "male"
     ]
 ]

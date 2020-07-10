@@ -23,20 +23,18 @@ def make_call(data):
 	print('GET')
 	print(GET_request)
 	
-	json_data_str = json.dumps(GET_request, indent=4, sort_keys=True)
-	print(json_data_str)
-	
 	# dump txt file
 	output_dir = check_make_output_root_dir()
 	output_path = os.path.join(output_dir, 'dump.txt')
 	
+	# dump csv file
 	with open(os.path.join(output_dir, 'dump.csv'), mode='w', newline='') as csv_file:
 		csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 		csv_writer.writerow(['firstname', 'lastname', 'age', 'gender'])
 		for row in GET_request:
 			csv_writer.writerow(row)
 	
+	json_data_str = json.dumps(GET_request, indent=4, sort_keys=True)
+	print(json_data_str)
 	with open(output_path, 'w') as f:
 		f.write(json_data_str)
-		
-# data = { "firstname": "Russell2", "lastname": "Strauss", "age": 30, "gender": "M" }

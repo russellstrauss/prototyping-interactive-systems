@@ -75,7 +75,6 @@ class ParticipantInfo(Step):
 		self.data["step_label"] = self.step_label
 	
 	def updateEntry(self, field_label, field_input_text):
-		print(field_input_text.get())
 		self.data[field_label] = field_input_text.get()
 
 class MyWizard(Wizard):
