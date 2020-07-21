@@ -140,6 +140,7 @@ class LogSpiral(ShowBase):
 			self.curve_segment.hide()
 			
 	def toggleViewingObjectVisibility(self):
+		
 		if (self.viewing_object_hidden):
 			self.world.attachRigidBody(self.viewing_object.node())
 		else:
@@ -179,8 +180,8 @@ class LogSpiral(ShowBase):
 		body = BulletRigidBodyNode("viewing_object")
 		self.viewing_object = self.worldNP.attachNewNode(body)
 		self.viewing_object.node().addShape(shape)
-		# self.viewing_object.setHpr(0, 90,0)
-		self.viewing_object.setPos(100, 100, 0)
+		self.viewing_object.setPos(0, 0, 0)
+		self.viewing_object.setHpr(0, 90,0)
 		self.viewing_object.setCollideMask(BitMask32.allOn())
 		self.world.attachRigidBody(self.viewing_object.node())
 		self.viewing_object.setScale(50)
@@ -232,44 +233,44 @@ class LogSpiral(ShowBase):
 		self.worldNP.removeNode()
 		aspect2d.clear() # remove gui
 		
-	def addSliders(self):
+	def addGUI(self):
 		
 		def updateViewingDistance(sliderIndex):
 			self.viewing_distance = sliders[sliderIndex]["object"]["value"]
-			print(self.viewing_distance)
+			# print(self.viewing_distance)
 		def updateViewingAngle(sliderIndex):
 			self.viewing_angle = sliders[sliderIndex]["object"]["value"]
-			print(self.viewing_angle)
+			# print(self.viewing_angle)
 		def updateAValue(sliderIndex):
 			self.a = sliders[sliderIndex]["object"]["value"]
-			print(self.a)
+			# print(self.a)
 			self.createCurve()
 		def updateKValue(sliderIndex):
 			self.k = sliders[sliderIndex]["object"]["value"]
-			print(self.k)
+			# print(self.k)
 			self.createCurve()
 		def updateSpeed(sliderIndex):
 			self.speed = sliders[sliderIndex]["object"]["value"]
-			print(self.speed)
+			# print(self.speed)
 		def updateRadialScale(sliderIndex):
 			self.radius_scale = sliders[sliderIndex]["object"]["value"]
-			print(self.radius_scale)
+			# print(self.radius_scale)
 			self.createCurve()
 		def updateLowerBound(sliderIndex):
 			self.lower_bound = sliders[sliderIndex]["object"]["value"]
-			print(self.lower_bound)
+			# print(self.lower_bound)
 			self.createCurve()
 		def updateTruncationPoint(sliderIndex):
 			self.truncate_percentage = sliders[sliderIndex]["object"]["value"]
-			print(self.truncate_percentage)
+			# print(self.truncate_percentage)
 			self.createCurve()
 		def updateHeightScale(sliderIndex):
 			self.height_scale = sliders[sliderIndex]["object"]["value"]
-			print(self.height_scale)
+			# print(self.height_scale)
 			self.createCurve()
 		def updateViewingObjectScale(sliderIndex):
 			self.viewing_object_scaling = sliders[sliderIndex]["object"]["value"]
-			print(self.viewing_object_scaling)
+			# print(self.viewing_object_scaling)
 			self.viewing_object.setScale(self.viewing_object_scaling)
 		
 		# if "myVar" in locals(): print(len(sliders))
@@ -284,7 +285,7 @@ class LogSpiral(ShowBase):
 			{ "text": "Height Scale", "range": (1, 20), "value": self.height_scale, "pageSize": .5, "event": updateHeightScale, "extraArgs": [6] },
 			{ "text": "Lift", "range": (0, 100), "value": self.lower_bound, "pageSize": 100, "event": updateLowerBound, "extraArgs": [7] },
 			{ "text": "Truncate", "range": (.001, 1), "value": self.truncate_percentage, "pageSize": .1, "event": updateTruncationPoint, "extraArgs": [8] },
-			{ "text": "Scale Viewing Object", "range": (.001, 100), "value": self.viewing_object_scaling, "pageSize": .1, "event": updateViewingObjectScale, "extraArgs": [9] },
+			{ "text": "Scale Viewing Object", "range": (.01, 200), "value": self.viewing_object_scaling, "pageSize": .1, "event": updateViewingObjectScale, "extraArgs": [9] },
 		]
 		
 		for index, slider in enumerate(sliders):
@@ -317,11 +318,8 @@ class LogSpiral(ShowBase):
 		
 		for index, button in enumerate(buttons):
 			position = (-1.7 + (.2 * index), 0, -.98)	
-			button["object"] = DirectButton(text=(button["text"]),
-				pos=position,
-				scale=0.02,
-				command=button["event"])
-
+			button["object"] = DirectButton(text=(button["text"]), pos=position, scale=0.02, command=button["event"])
+	
 	def setup(self):
 		
 		# World
@@ -335,7 +333,7 @@ class LogSpiral(ShowBase):
 		self.debugNP.node().showNormals(True)
 
 		self.setDefaults()
-		self.addSliders()
+		self.addGUI()
 		self.createCurve()
 		
 		self.world = BulletWorld()
