@@ -1,9 +1,7 @@
 from datetime import datetime
 import json
 import csv
-
-# with open('json_demo.txt', 'w') as file_out:
-# 	file_out.write(dict_as_json_str)
+import os
 	
 def open_json(filename):
 	try:
@@ -26,15 +24,11 @@ def save_json(dictionary, filename):
 	with open(filename, 'w') as file_out:
 		file_out.write(dictionary)
 		
-def write_config(filename, teststring, tnum, snum, timestamp):
+def write_config(filename, snum, tnum, timestamp, teststring):
 	
-	with open(filename, mode='w') as csv_file:
+	with open(filename, mode='w', newline='') as csv_file:
 		csv_writer = csv.writer(csv_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-
-		csv_writer.writerow(['John Smith', 'Accounting', 'November'])
-		csv_writer.writerow(['Erica Meyers', 'IT', 'March'])
-	
-	return
+		csv_writer.writerow([snum, tnum, timestamp, teststring])
 
 def json_file_to_dict(filename):
 	with open(filename, 'r') as file_in:
@@ -44,7 +38,3 @@ def json_file_to_dict(filename):
 def read_config(filename):
 	config = open_csv(filename)
 	return config
-
-# result = read_config("studydata_config.csv")
-# print(result)		
-#return a config string

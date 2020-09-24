@@ -36,4 +36,5 @@ while running:
 			filename = str(input("Test complete. Enter a filename for your result database. "))
 			studydata.save_json(result, filename + '.json')
 			print("Results saved to " + filename + '.json')
+			studydata.write_config(filename + "_config.csv", session_number, trial_number, start_time, test_sentence)
 			print("Configuration saved to " + filename + "_config.csv")

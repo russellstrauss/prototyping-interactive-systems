@@ -222,9 +222,9 @@ def set_up_tlx(self, my_frame):
 	return my_frame
 
 class TLXScaleStep(Step):
-	def __init__(self, parent, data, stepname, page_label):
+	def __init__(self, parent, data, stepname, stepIndex, page_label):
 		super().__init__(parent, data, stepname)
-		self.data["tlx-raw-rating"]["total_weighted_rating"] = 0
+		self.data["tlx-raw-rating-" + str(stepIndex)]["total_weighted_rating"] = 0
 		self.page_label = page_label
 		lbl1 = Label(self, text=self.page_label, font="bold")
 		lbl1.pack(side="top", fill="x")
@@ -233,7 +233,7 @@ class TLXScaleStep(Step):
 		my_frame = set_up_tlx(self, my_frame)
 		my_frame.pack(padx=10, pady=10)
 
-		self.data[self.stepname]["page_label"] = self.page_label
+		self.data[self.stepname + str(stepIndex)]["page_label"] = self.page_label
 
 	def updateMentalDemand(self, event):
 		self.data[self.stepname]["mental_demand"] = event
@@ -316,15 +316,26 @@ class MyWizard(Wizard):
 	def __init__(self, parent, data):
 		super().__init__(parent, data)
 		steps = [
-					ParticipantInfo(self, self.data, "initialization", "Participant Info"),
-					SimonStep(self, self.data, "simon-1", 5, 3),
-					SimonStep(self, self.data, "simon-2", 5, 6),
-					SimonStep(self, self.data, "simon3", 5, 9),
-					TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis")
+					ParticipantInfo(self, self.data, "initialization", "Participant Info")
+					# SimonStep(self, self.data, "simon-1", 5, 3),
+					# SimonStep(self, self.data, "simon-2", 5, 6),
+					# SimonStep(self, self.data, "simon3", 5, 9)
 				]
+				
+		steps.append(SimonStep(self, self.data, "simon-1", 1, 1))
+		steps.append(TLXScaleStep(self, self.data, "tlx-raw-rating-", "1", "TLX Analysis"))
 		for index, pair in enumerate(pairwise_factors):
-			# if (index == 0):
-			steps.append(TLXRankStep(self, self.data, "tlx-weight-rank-step-" + str(index+1), "TLX Task Ranking", pair))
+			steps.append(TLXRankStep(self, self.data, "simon-1-tlx-weight-rank-step-" + str(index+1), "TLX Task Ranking", pair))
+			
+		# steps.append(SimonStep(self, self.data, "simon-2", 1, 1))
+		# steps.append(TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis"))
+		# for index, pair in enumerate(pairwise_factors):
+		# 	steps.append(TLXRankStep(self, self.data, "tlx-weight-ranking-simon-2", "TLX Task Ranking", pair))
+			
+		# steps.append(SimonStep(self, self.data, "simon-3", 1, 1))
+		# steps.append(TLXScaleStep(self, self.data, "tlx-raw-rating", "TLX Analysis"))
+		# for index, pair in enumerate(pairwise_factors):
+		# 	steps.append(TLXRankStep(self, self.data, "tlx-weight-ranking-simon-3", "TLX Task Ranking", pair))
 			
 		self.set_steps(steps)
 		self.start()
