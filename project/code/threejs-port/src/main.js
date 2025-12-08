@@ -9,16 +9,14 @@ class App {
   constructor() {
     this.params = {
       // Spiral parameters
-      a: 0.75,
+      a: 2,
       k: 0.5,
       radiusScale: 1,
-      heightScale: 1,
+      heightScale: 10,
       lowerBound: 1,
-      truncatePercentage: 0.25,
+      truncatePercentage: 0,
       
       // Viewing parameters
-      viewingDistance: 250,
-      viewingAngle: 0,
       speed: 0.25,
       objectScale: 50,
       
@@ -27,10 +25,15 @@ class App {
       showCurve: true,
       showModel: true,
       
+      // Model selection
+      modelChoice: 'chicken',
+      
       // Actions
       loadModel: () => this.openModelDialog(),
       reset: () => this.reset()
     };
+
+    this.modelOptions = ['chicken', 'bunny', 'snowman', 'diamond'];
 
     this.curve = [];
     this.progress = 0;
@@ -50,10 +53,7 @@ class App {
   init() {
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x0a0a1a);
-    
-    // Add subtle fog for depth
-    this.scene.fog = new THREE.FogExp2(0x0a0a1a, 0.0008);
+    this.scene.background = new THREE.Color(0x1a3a6a);
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
@@ -62,7 +62,7 @@ class App {
       0.1,
       50000
     );
-    this.camera.position.set(200, 100, 200);
+    this.camera.position.set(500, 300, 500);
 
     // Renderer
     const canvas = document.getElementById('canvas');
@@ -92,26 +92,16 @@ class App {
   }
 
   createGround() {
-    // Grid helper
-    const gridHelper = new THREE.GridHelper(2000, 50, 0x00f0ff, 0x1a1a2e);
-    gridHelper.material.opacity = 0.3;
+    // Grid helper - black wireframes
+    const gridHelper = new THREE.GridHelper(2000, 50, 0x000000, 0x000000);
+    gridHelper.material.opacity = 0.75;
     gridHelper.material.transparent = true;
     this.scene.add(gridHelper);
 
-    // Gradient ground plane
-    const groundGeo = new THREE.PlaneGeometry(4000, 4000);
-    const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x0a0a12,
-      metalness: 0.8,
-      roughness: 0.6,
-      transparent: true,
-      opacity: 0.9
-    });
-    const ground = new THREE.Mesh(groundGeo, groundMat);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = -0.5;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
+    // Axes helper (RGB = XYZ) - raised slightly to prevent z-fighting with grid
+    const axesHelper = new THREE.AxesHelper(500);
+    axesHelper.position.y = 1;
+    this.scene.add(axesHelper);
   }
 
   setupLighting() {
@@ -149,21 +139,26 @@ class App {
 
   setupGUI() {
     this.gui = new GUI({ title: '⟨ SPIRAL CONTROLS ⟩' });
+    
+    // Position GUI at bottom left
+    this.gui.domElement.style.position = 'absolute';
+    this.gui.domElement.style.bottom = '80px';
+    this.gui.domElement.style.left = '20px';
+    this.gui.domElement.style.top = 'auto';
+    this.gui.domElement.style.right = 'auto';
 
     // Spiral folder
     const spiralFolder = this.gui.addFolder('Spiral Parameters');
     spiralFolder.add(this.params, 'a', -3, 3, 0.01).name('a coefficient').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'k', 0.01, 1, 0.01).name('k coefficient').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'radiusScale', 0.1, 10, 0.1).name('Radius Scale').onChange(() => this.createSpiral());
-    spiralFolder.add(this.params, 'heightScale', 0.1, 20, 0.1).name('Height Scale').onChange(() => this.createSpiral());
-    spiralFolder.add(this.params, 'lowerBound', 0, 100, 1).name('Lift').onChange(() => this.createSpiral());
+    spiralFolder.add(this.params, 'heightScale', 1, 12, 0.1).name('Height Scale').onChange(() => this.createSpiral());
+    spiralFolder.add(this.params, 'lowerBound', -100, 100, 1).name('Lift').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'truncatePercentage', 0.001, 1, 0.01).name('Truncate').onChange(() => this.createSpiral());
     spiralFolder.open();
 
     // View folder
     const viewFolder = this.gui.addFolder('Viewing');
-    viewFolder.add(this.params, 'viewingDistance', 10, 2000, 10).name('Distance');
-    viewFolder.add(this.params, 'viewingAngle', 0, 360, 1).name('Angle');
     viewFolder.add(this.params, 'speed', 0.01, 3, 0.01).name('Animation Speed');
     viewFolder.add(this.params, 'objectScale', 0.1, 200, 0.1).name('Model Scale').onChange(() => this.updateModelScale());
     viewFolder.open();
@@ -175,9 +170,14 @@ class App {
     togglesFolder.add(this.params, 'showModel').name('Show Model (H)').onChange(() => this.toggleModelVisibility());
     togglesFolder.open();
 
+    // Model folder
+    const modelFolder = this.gui.addFolder('Model');
+    modelFolder.add(this.params, 'modelChoice', this.modelOptions).name('Default Model').onChange(() => this.loadSelectedModel());
+    modelFolder.add(this.params, 'loadModel').name('📁 Load Custom...');
+    modelFolder.open();
+
     // Actions folder
     const actionsFolder = this.gui.addFolder('Actions');
-    actionsFolder.add(this.params, 'loadModel').name('📁 Load Model');
     actionsFolder.add(this.params, 'reset').name('🔄 Reset');
   }
 
@@ -227,23 +227,9 @@ class App {
     const points = this.curve.map(p => new THREE.Vector3(p.x, p.z, p.y)); // Swap Y/Z for Three.js coord system
     const geometry = new THREE.BufferGeometry().setFromPoints(points);
 
-    // Create gradient material using vertex colors
-    const colors = [];
-    for (let i = 0; i < points.length; i++) {
-      const t = i / points.length;
-      // Gradient from cyan to magenta
-      const r = t;
-      const g = 1 - t * 0.5;
-      const b = 1;
-      colors.push(r, g, b);
-    }
-    geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-
     const material = new THREE.LineBasicMaterial({
-      vertexColors: true,
-      linewidth: 2,
-      transparent: true,
-      opacity: 0.9
+      color: 0xff0000,
+      linewidth: 2
     });
 
     this.spiralLine = new THREE.Line(geometry, material);
@@ -255,21 +241,49 @@ class App {
   }
 
   loadDefaultModel() {
-    // Create a default geometric shape
-    const geometry = new THREE.IcosahedronGeometry(20, 2);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xff00aa,
-      metalness: 0.7,
-      roughness: 0.3,
-      emissive: 0x220011,
-      emissiveIntensity: 0.2
+    this.loadSelectedModel();
+  }
+
+  loadSelectedModel() {
+    // Remove old model
+    if (this.viewingObject) {
+      this.scene.remove(this.viewingObject);
+      this.viewingObject.traverse((child) => {
+        if (child.geometry) child.geometry.dispose();
+        if (child.material) child.material.dispose();
+      });
+    }
+
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true
     });
+
+    const modelPath = `/models/${this.params.modelChoice}.obj`;
+    const loader = new OBJLoader();
     
-    this.viewingObject = new THREE.Mesh(geometry, material);
-    this.viewingObject.castShadow = true;
-    this.viewingObject.receiveShadow = true;
-    this.viewingObject.scale.setScalar(this.params.objectScale / 20);
-    this.scene.add(this.viewingObject);
+    loader.load(modelPath, (obj) => {
+      obj.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          child.material = material;
+        }
+      });
+      this.viewingObject = obj;
+      this.viewingObject.userData.baseScale = 0.05;
+      this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
+      this.centerModel(this.viewingObject);
+      this.viewingObject.visible = this.params.showModel;
+      this.scene.add(this.viewingObject);
+    }, undefined, (error) => {
+      // Fallback to icosahedron if model fails to load
+      console.warn(`Failed to load ${this.params.modelChoice} model, using fallback:`, error);
+      const geometry = new THREE.IcosahedronGeometry(20, 2);
+      this.viewingObject = new THREE.Mesh(geometry, material);
+      this.viewingObject.userData.baseScale = 0.05;
+      this.viewingObject.scale.setScalar(this.params.objectScale * 0.05 / 20);
+      this.viewingObject.visible = this.params.showModel;
+      this.scene.add(this.viewingObject);
+    });
   }
 
   openModelDialog() {
@@ -295,12 +309,9 @@ class App {
       if (this.viewingObject.material) this.viewingObject.material.dispose();
     }
 
-    const material = new THREE.MeshStandardMaterial({
-      color: 0x00f0ff,
-      metalness: 0.6,
-      roughness: 0.4,
-      emissive: 0x001122,
-      emissiveIntensity: 0.3
+    const material = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: true
     });
 
     if (extension === 'obj') {
@@ -309,12 +320,11 @@ class App {
         obj.traverse((child) => {
           if (child instanceof THREE.Mesh) {
             child.material = material;
-            child.castShadow = true;
-            child.receiveShadow = true;
           }
         });
         this.viewingObject = obj;
-        this.viewingObject.scale.setScalar(this.params.objectScale);
+        this.viewingObject.userData.baseScale = 0.05;
+        this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
         this.centerModel(this.viewingObject);
         this.scene.add(this.viewingObject);
         URL.revokeObjectURL(url);
@@ -324,10 +334,9 @@ class App {
       loader.load(url, (geometry) => {
         geometry.computeVertexNormals();
         const mesh = new THREE.Mesh(geometry, material);
-        mesh.castShadow = true;
-        mesh.receiveShadow = true;
         this.viewingObject = mesh;
-        this.viewingObject.scale.setScalar(this.params.objectScale);
+        this.viewingObject.userData.baseScale = 0.05;
+        this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
         this.centerModel(this.viewingObject);
         this.scene.add(this.viewingObject);
         URL.revokeObjectURL(url);
@@ -344,7 +353,7 @@ class App {
 
   updateModelScale() {
     if (this.viewingObject) {
-      const baseScale = this.viewingObject.userData.baseScale || 1;
+      const baseScale = this.viewingObject.userData.baseScale || 0.05;
       this.viewingObject.scale.setScalar(this.params.objectScale * baseScale);
     }
   }
@@ -362,14 +371,12 @@ class App {
   }
 
   reset() {
-    this.params.a = 0.75;
+    this.params.a = 2;
     this.params.k = 0.5;
     this.params.radiusScale = 1;
-    this.params.heightScale = 1;
+    this.params.heightScale = 10;
     this.params.lowerBound = 1;
-    this.params.truncatePercentage = 0.25;
-    this.params.viewingDistance = 250;
-    this.params.viewingAngle = 0;
+    this.params.truncatePercentage = 0;
     this.params.speed = 0.25;
     this.params.animating = false;
     this.params.showCurve = true;
@@ -400,14 +407,8 @@ class App {
       // Disable orbit controls during animation
       this.controls.enabled = false;
     } else {
-      // Static viewing - orbit around center
+      // Static viewing - orbit controls handle the camera
       this.controls.enabled = true;
-      
-      const angleRad = (this.params.viewingAngle * Math.PI) / 180;
-      const distance = this.params.viewingDistance;
-      
-      // Update orbit controls target and position when not animating
-      // Let OrbitControls handle the camera otherwise
     }
 
     // Always look at the viewing object

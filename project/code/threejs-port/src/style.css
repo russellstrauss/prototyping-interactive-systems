@@ -5,14 +5,14 @@
 }
 
 :root {
-  --bg-dark: #0a0a12;
+  --bg-dark: #1a3a6a;
   --accent-cyan: #00f0ff;
   --accent-magenta: #ff00aa;
   --accent-gold: #ffcc00;
-  --text-primary: #e8e8f0;
-  --text-muted: #6a6a80;
-  --panel-bg: rgba(15, 15, 25, 0.85);
-  --panel-border: rgba(100, 100, 140, 0.2);
+  --text-primary: #ffffff;
+  --text-muted: #a0c0e0;
+  --panel-bg: rgba(10, 30, 60, 0.9);
+  --panel-border: rgba(150, 180, 220, 0.3);
 }
 
 body {

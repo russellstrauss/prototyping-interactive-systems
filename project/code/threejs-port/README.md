@@ -4,15 +4,12 @@ A 3D logarithmic spiral visualization built with **Three.js** and **Vite**.
 
 This is a JavaScript port of the original Python/Panda3D project.
 
-![Log Spiral](https://via.placeholder.com/800x400/0a0a1a/00f0ff?text=LogSpiral+Visualization)
-
 ## Features
 
 - **Interactive 3D logarithmic spiral curve** with adjustable parameters
 - **Model loading** - Import your own `.obj` or `.stl` files
 - **Animated camera** that follows the spiral path
 - **Real-time parameter controls** via lil-gui
-- **Modern, dark-themed UI** with accent lighting
 - **Keyboard shortcuts** for quick access
 
 ## Mathematical Background
@@ -91,13 +88,11 @@ npm run preview
 - **a coefficient** - Controls initial spiral radius (-3 to 3)
 - **k coefficient** - Controls growth rate (0.01 to 1)
 - **Radius Scale** - Overall radial scaling
-- **Height Scale** - Vertical scaling
-- **Lift** - Minimum height offset
+- **Height Scale** - Vertical scaling (1-12)
+- **Lift** - Height offset (-100 to 100)
 - **Truncate** - How much of the inner spiral to skip
 
 #### Viewing
-- **Distance** - Camera distance from center (when not animating)
-- **Angle** - Camera orbit angle (when not animating)
 - **Animation Speed** - How fast the camera moves along the spiral
 - **Model Scale** - Scale of the loaded 3D model
 
@@ -106,12 +101,6 @@ npm run preview
 1. Click **"📁 Load Model"** in the GUI
 2. Select an `.obj` or `.stl` file from your computer
 3. Adjust scale as needed with the **Model Scale** slider
-
-Sample models are available in `../models/`:
-- `bunny.obj` - Stanford bunny
-- `snowman.obj` - Snowman model
-- `chicken.obj` - Chicken model
-- `diamond.obj` - Diamond shape
 
 ## Project Structure
 
