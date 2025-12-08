@@ -3,12 +3,12 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   base: './',
   server: {
-    open: true,
-    port: 3000
+    open: true
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    chunkSizeWarningLimit: 1000
   }
 });
 

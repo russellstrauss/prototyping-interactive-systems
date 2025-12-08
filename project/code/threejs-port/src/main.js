@@ -17,8 +17,8 @@ class App {
       truncatePercentage: 0,
       
       // Viewing parameters
-      speed: 0.25,
-      objectScale: 50,
+      speed: 1,
+      objectScale: 1,
       
       // Toggles
       animating: false,
@@ -26,7 +26,7 @@ class App {
       showModel: true,
       
       // Model selection
-      modelChoice: 'chicken',
+      modelChoice: 'bunny',
       
       // Actions
       loadModel: () => this.openModelDialog(),
@@ -34,6 +34,9 @@ class App {
     };
 
     this.modelOptions = ['chicken', 'bunny', 'snowman', 'diamond'];
+    
+    // Base model size before scale multiplier is applied
+    this.baseModelSize = 100;
 
     this.curve = [];
     this.progress = 0;
@@ -53,7 +56,7 @@ class App {
   init() {
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x1a3a6a);
+    this.scene.background = new THREE.Color(0x00008a);
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(
@@ -93,8 +96,8 @@ class App {
 
   createGround() {
     // Grid helper - black wireframes
-    const gridHelper = new THREE.GridHelper(2000, 50, 0x000000, 0x000000);
-    gridHelper.material.opacity = 0.75;
+    const gridHelper = new THREE.GridHelper(2000, 50, 0xffffff, 0xffffff);
+    gridHelper.material.opacity = 0.25;
     gridHelper.material.transparent = true;
     this.scene.add(gridHelper);
 
@@ -142,14 +145,14 @@ class App {
     
     // Position GUI at bottom left
     this.gui.domElement.style.position = 'absolute';
-    this.gui.domElement.style.bottom = '80px';
+    this.gui.domElement.style.bottom = '20px';
     this.gui.domElement.style.left = '20px';
     this.gui.domElement.style.top = 'auto';
     this.gui.domElement.style.right = 'auto';
 
     // Spiral folder
     const spiralFolder = this.gui.addFolder('Spiral Parameters');
-    spiralFolder.add(this.params, 'a', -3, 3, 0.01).name('a coefficient').onChange(() => this.createSpiral());
+    spiralFolder.add(this.params, 'a', 0, 10, 0.01).name('a coefficient').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'k', 0.01, 1, 0.01).name('k coefficient').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'radiusScale', 0.1, 10, 0.1).name('Radius Scale').onChange(() => this.createSpiral());
     spiralFolder.add(this.params, 'heightScale', 1, 12, 0.1).name('Height Scale').onChange(() => this.createSpiral());
@@ -160,7 +163,7 @@ class App {
     // View folder
     const viewFolder = this.gui.addFolder('Viewing');
     viewFolder.add(this.params, 'speed', 0.01, 3, 0.01).name('Animation Speed');
-    viewFolder.add(this.params, 'objectScale', 0.1, 200, 0.1).name('Model Scale').onChange(() => this.updateModelScale());
+    viewFolder.add(this.params, 'objectScale', 0.1, 10, 0.1).name('Model Scale').onChange(() => this.updateModelScale());
     viewFolder.open();
 
     // Toggles folder
@@ -220,8 +223,6 @@ class App {
     const spiral = new LogSpiral(this.params);
     this.curve = spiral.generateCurve();
     
-    // Update stats
-    document.getElementById('curve-points').textContent = `${this.curve.length} points`;
 
     // Create line geometry
     const points = this.curve.map(p => new THREE.Vector3(p.x, p.z, p.y)); // Swap Y/Z for Three.js coord system
@@ -256,10 +257,12 @@ class App {
 
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      wireframe: true
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6
     });
 
-    const modelPath = `/models/${this.params.modelChoice}.obj`;
+    const modelPath = `./models/${this.params.modelChoice}.obj`;
     const loader = new OBJLoader();
     
     loader.load(modelPath, (obj) => {
@@ -269,18 +272,18 @@ class App {
         }
       });
       this.viewingObject = obj;
-      this.viewingObject.userData.baseScale = 0.05;
-      this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
+      this.viewingObject.userData.baseScale = this.baseModelSize;
+      this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
       this.centerModel(this.viewingObject);
       this.viewingObject.visible = this.params.showModel;
       this.scene.add(this.viewingObject);
     }, undefined, (error) => {
       // Fallback to icosahedron if model fails to load
       console.warn(`Failed to load ${this.params.modelChoice} model, using fallback:`, error);
-      const geometry = new THREE.IcosahedronGeometry(20, 2);
+      const geometry = new THREE.IcosahedronGeometry(25, 2);
       this.viewingObject = new THREE.Mesh(geometry, material);
-      this.viewingObject.userData.baseScale = 0.05;
-      this.viewingObject.scale.setScalar(this.params.objectScale * 0.05 / 20);
+      this.viewingObject.userData.baseScale = this.baseModelSize;
+      this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
       this.viewingObject.visible = this.params.showModel;
       this.scene.add(this.viewingObject);
     });
@@ -311,7 +314,9 @@ class App {
 
     const material = new THREE.MeshBasicMaterial({
       color: 0xffffff,
-      wireframe: true
+      wireframe: true,
+      transparent: true,
+      opacity: 0.1
     });
 
     if (extension === 'obj') {
@@ -323,9 +328,10 @@ class App {
           }
         });
         this.viewingObject = obj;
-        this.viewingObject.userData.baseScale = 0.05;
-        this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
+        this.viewingObject.userData.baseScale = this.baseModelSize;
+        this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
         this.centerModel(this.viewingObject);
+        this.viewingObject.visible = this.params.showModel;
         this.scene.add(this.viewingObject);
         URL.revokeObjectURL(url);
       });
@@ -335,9 +341,10 @@ class App {
         geometry.computeVertexNormals();
         const mesh = new THREE.Mesh(geometry, material);
         this.viewingObject = mesh;
-        this.viewingObject.userData.baseScale = 0.05;
-        this.viewingObject.scale.setScalar(this.params.objectScale * 0.05);
+        this.viewingObject.userData.baseScale = this.baseModelSize;
+        this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
         this.centerModel(this.viewingObject);
+        this.viewingObject.visible = this.params.showModel;
         this.scene.add(this.viewingObject);
         URL.revokeObjectURL(url);
       });
@@ -353,8 +360,8 @@ class App {
 
   updateModelScale() {
     if (this.viewingObject) {
-      const baseScale = this.viewingObject.userData.baseScale || 0.05;
-      this.viewingObject.scale.setScalar(this.params.objectScale * baseScale);
+      const baseScale = this.viewingObject.userData.baseScale || this.baseModelSize;
+      this.viewingObject.scale.setScalar(baseScale * this.params.objectScale);
     }
   }
 
@@ -377,7 +384,7 @@ class App {
     this.params.heightScale = 10;
     this.params.lowerBound = 1;
     this.params.truncatePercentage = 0;
-    this.params.speed = 0.25;
+    this.params.speed = 1;
     this.params.animating = false;
     this.params.showCurve = true;
     this.params.showModel = true;
@@ -418,9 +425,9 @@ class App {
   }
 
   updateFPS(time) {
+    // FPS tracking (display removed)
     this.frameCount++;
     if (time - this.lastFpsUpdate >= 1000) {
-      document.getElementById('fps').textContent = `${this.frameCount} FPS`;
       this.frameCount = 0;
       this.lastFpsUpdate = time;
     }

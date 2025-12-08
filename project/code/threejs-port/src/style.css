@@ -5,7 +5,7 @@
 }
 
 :root {
-  --bg-dark: #1a3a6a;
+  --bg-dark: #1B779B;
   --accent-cyan: #00f0ff;
   --accent-magenta: #ff00aa;
   --accent-gold: #ffcc00;
@@ -57,10 +57,7 @@ body {
 }
 
 #title h1 .accent {
-  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #ff0000;
 }
 
 #title .subtitle {
@@ -92,7 +89,7 @@ body {
 
 #controls-hint {
   position: absolute;
-  bottom: 24px;
+  top: 24px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
