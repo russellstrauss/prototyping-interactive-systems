@@ -9,12 +9,12 @@ class App {
   constructor() {
     this.params = {
       // Spiral parameters
-      a: 2,
-      k: 0.5,
+      a: 3.5,
+      k: 0.7,
       radiusScale: 1,
       heightScale: 10,
-      lowerBound: 1,
-      truncatePercentage: 0,
+      lowerBound: 100,
+      truncatePercentage: 0.4,
       
       // Viewing parameters
       speed: 1,
@@ -425,12 +425,12 @@ class App {
   }
 
   reset() {
-    this.params.a = 2;
-    this.params.k = 0.5;
+    this.params.a = 3.5;
+    this.params.k = 0.7;
     this.params.radiusScale = 1;
     this.params.heightScale = 10;
-    this.params.lowerBound = 1;
-    this.params.truncatePercentage = 0;
+    this.params.lowerBound = 100;
+    this.params.truncatePercentage = 0.4;
     this.params.speed = 1;
     this.params.objectScale = 2;
     this.params.animating = false;

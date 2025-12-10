@@ -13,12 +13,12 @@
  */
 export class LogSpiral {
   constructor(params) {
-    this.a = params.a ?? 2;
-    this.k = params.k ?? 0.5;
+    this.a = params.a ?? 3.5;
+    this.k = params.k ?? 0.7;
     this.radiusScale = params.radiusScale ?? 1;
-    this.heightScale = params.heightScale ?? 5;
-    this.lowerBound = params.lowerBound ?? 1;
-    this.truncatePercentage = params.truncatePercentage ?? 0;
+    this.heightScale = params.heightScale ?? 10;
+    this.lowerBound = params.lowerBound ?? 100;
+    this.truncatePercentage = params.truncatePercentage ?? 0.4;
     
     // Curve generation parameters
     this.iterationCount = 10001;
