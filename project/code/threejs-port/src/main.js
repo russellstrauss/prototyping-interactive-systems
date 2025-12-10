@@ -18,7 +18,7 @@ class App {
       
       // Viewing parameters
       speed: 1,
-      objectScale: 1,
+      objectScale: 2,
       
       // Toggles
       animating: false,
@@ -262,31 +262,78 @@ class App {
       opacity: 0.6
     });
 
-    const modelPath = `./models/${this.params.modelChoice}.obj`;
+    const modelPath = `${import.meta.env.BASE_URL}models/${this.params.modelChoice}.obj`;
     const loader = new OBJLoader();
     
-    loader.load(modelPath, (obj) => {
-      obj.traverse((child) => {
-        if (child instanceof THREE.Mesh) {
-          child.material = material;
+    console.log(`Loading model from: ${modelPath}`);
+    
+    loader.load(
+      modelPath,
+      (obj) => {
+        console.log('Model loaded successfully:', obj);
+        
+        let meshCount = 0;
+        let vertexCount = 0;
+        
+        obj.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            meshCount++;
+            if (child.geometry) {
+              vertexCount += child.geometry.attributes.position?.count || 0;
+              // Ensure geometry is valid
+              if (!child.geometry.attributes.position || child.geometry.attributes.position.count === 0) {
+                console.warn('Mesh has no vertices:', child);
+              }
+            }
+            child.material = material;
+          }
+        });
+        
+        console.log(`Model contains ${meshCount} meshes with ${vertexCount} total vertices`);
+        
+        if (meshCount === 0) {
+          console.error('Model loaded but contains no meshes!');
+          // Fallback to icosahedron
+          const geometry = new THREE.IcosahedronGeometry(25, 2);
+          this.viewingObject = new THREE.Mesh(geometry, material);
+          this.viewingObject.userData.baseScale = this.baseModelSize;
+          this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
+          this.viewingObject.visible = this.params.showModel;
+          this.scene.add(this.viewingObject);
+          return;
         }
-      });
-      this.viewingObject = obj;
-      this.viewingObject.userData.baseScale = this.baseModelSize;
-      this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
-      this.centerModel(this.viewingObject);
-      this.viewingObject.visible = this.params.showModel;
-      this.scene.add(this.viewingObject);
-    }, undefined, (error) => {
-      // Fallback to icosahedron if model fails to load
-      console.warn(`Failed to load ${this.params.modelChoice} model, using fallback:`, error);
-      const geometry = new THREE.IcosahedronGeometry(25, 2);
-      this.viewingObject = new THREE.Mesh(geometry, material);
-      this.viewingObject.userData.baseScale = this.baseModelSize;
-      this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
-      this.viewingObject.visible = this.params.showModel;
-      this.scene.add(this.viewingObject);
-    });
+        
+        this.viewingObject = obj;
+        this.viewingObject.userData.baseScale = this.baseModelSize;
+        this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
+        this.centerModel(this.viewingObject);
+        this.viewingObject.visible = this.params.showModel;
+        this.scene.add(this.viewingObject);
+        
+        // Log bounding box for debugging
+        const box = new THREE.Box3().setFromObject(this.viewingObject);
+        console.log('Model bounding box:', box);
+        console.log('Model position:', this.viewingObject.position);
+        console.log('Model scale:', this.viewingObject.scale);
+        console.log('Model visible:', this.viewingObject.visible);
+      },
+      (progress) => {
+        if (progress.lengthComputable) {
+          const percentComplete = (progress.loaded / progress.total) * 100;
+          console.log(`Model loading: ${percentComplete.toFixed(2)}%`);
+        }
+      },
+      (error) => {
+        console.error(`Failed to load ${this.params.modelChoice} model:`, error);
+        // Fallback to icosahedron if model fails to load
+        const geometry = new THREE.IcosahedronGeometry(25, 2);
+        this.viewingObject = new THREE.Mesh(geometry, material);
+        this.viewingObject.userData.baseScale = this.baseModelSize;
+        this.viewingObject.scale.setScalar(this.baseModelSize * this.params.objectScale);
+        this.viewingObject.visible = this.params.showModel;
+        this.scene.add(this.viewingObject);
+      }
+    );
   }
 
   openModelDialog() {
@@ -385,6 +432,7 @@ class App {
     this.params.lowerBound = 1;
     this.params.truncatePercentage = 0;
     this.params.speed = 1;
+    this.params.objectScale = 2;
     this.params.animating = false;
     this.params.showCurve = true;
     this.params.showModel = true;
